@@ -1,0 +1,92 @@
+{
+    "name": "cookiecutter-python-package",
+    // Use docker while docker-compose doesn't support --gpus
+    "dockerFile": "devcontainer.dockerfile",
+    "context": "..",
+    "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace",
+    "workspaceFolder": "/workspace",
+    "mounts": [
+        "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/user/.ssh",
+        "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/user/.gitconfig",
+        "type=volume,source=cookiecutter-python-package_vscode-server,target=/home/user/.vscode-server",
+        "type=volume,source=home-cache,target=/home/user/.cache"
+    ],
+    "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "VisualStudioExptTeam.vscodeintellicode",
+                "GitHub.vscode-pull-request-github",
+                "eamodio.gitlens",
+                "mhutchie.git-graph",
+                "njpwerner.autodocstring"
+                // Extensions installed after VS Code initialization
+                // See make/venv-init.sh
+                // "ms-python.isort"
+            ],
+            "settings": {
+                // Save
+                "files.autoSave": "afterDelay",
+                // Format
+                "editor.formatOnSave": true,
+                "editor.detectIndentation": false,
+                "editor.tabSize": 4,
+                "editor.insertSpaces": true,
+                "editor.codeActionsOnSave": [
+                    "source.format",
+                    "source.organizeImports",
+                    "source.fixAll"
+                ],
+                "python.formatting.provider": "black",
+                "isort.importStrategy": "fromEnvironment",
+                "isort.args": [
+                    "--profile",
+                    "black"
+                ],
+                // Ignore files
+                "files.exclude": {
+                    "**/.git": true,
+                    "**/.venv": true,
+                    "**/cookiecutter-python-package.egg-info": true,
+                    "**/__pycache__": true,
+                    "**/.ipynb_checkpoints": true,
+                    "**/activate": true,
+                    "**/.coverage": true,
+                    "**/cookiecutter-python-package.spec": true
+                },
+                // Ignore for watching
+                "files.watcherExclude": {
+                    "**/.git/**": true,
+                    "**/.venv/**": true,
+                    "**/cookiecutter-python-package.egg-info/**": true,
+                    "**/__pycache__/**": true,
+                    "**/.ipynb_checkpoints/**": true,
+                    "**/data/**": true
+                },
+                // Python
+                "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
+                "python.terminal.activateEnvironment": false,
+                // pytest
+                "python.testing.pytestArgs": [
+                    "tests"
+                ],
+                "python.testing.unittestEnabled": false,
+                "python.testing.nosetestsEnabled": false,
+                "python.testing.pytestEnabled": true,
+                // Bandit
+                "python.linting.banditEnabled": true,
+                // Pylint    
+                "python.linting.pylintEnabled": true,
+                "python.linting.ignorePatterns": [
+                    "**/site-packages/**/*.py",
+                    ".vscode/*.py",
+                    "**/tests/**/*.py",
+                    "**/lib/python*/**/*.py"
+                ],
+                // GitHub
+                "githubPullRequests.defaultMergeMethod": "squash"
+            }
+        }
+    }
+}
