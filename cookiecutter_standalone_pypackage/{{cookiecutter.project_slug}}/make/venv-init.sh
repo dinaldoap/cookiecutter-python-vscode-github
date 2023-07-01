@@ -16,7 +16,6 @@ EOF
 cat << EOF >> ~/.bashrc
 # >>> venv-init >>>
 code --install-extension ms-python.isort > /dev/null
-cd $(pwd)
 # activate virtual environment
 activate
 # <<< venv-init <<<

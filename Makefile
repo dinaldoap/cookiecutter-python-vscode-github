@@ -65,7 +65,7 @@ lint: .cache/make/lint
 .PHONY: test
 test: .cache/make/test
 	
-.cache/make/package: ${PACKAGE_SRC} pyproject.toml
+.cache/make/package: .cache/make/sync ${PACKAGE_SRC} pyproject.toml
 	rm -rf dist/
 	python -m build
 	@date > $@

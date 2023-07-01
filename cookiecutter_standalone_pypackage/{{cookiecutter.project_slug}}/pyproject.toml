@@ -7,10 +7,10 @@ name = "{{cookiecutter.project_slug_hyphen}}"
 authors = [
     {name = "{{cookiecutter.full_name}}", email = "{{cookiecutter.email}}"},
 ]
-description = "Calculator of capital gain and accumulated wealth for brazilian investors."
+description = "description"
 readme = "README.md"
 requires-python = ">=3.8"
-keywords = ["capital", "gain", "taxes"]
+keywords = ["keyword"]
 license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 4 - Beta",
