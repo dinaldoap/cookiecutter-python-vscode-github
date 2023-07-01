@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm[toml]"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cookiecutter-standalone-pypackage"
+authors = [
+    {name = "Dinaldo Pessoa", email = "dinaldoap@gmail.com"},
+]
+description = "Cookiecutter for a standalone Python package, which requires only a local machine to build and upload it to PyPI."
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["cookiecutter", "standalone", "pypackage"]
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "cookiecutter",
+]
+dynamic = ["version"]
+
+[project.urls]
+repository = "https://github.com/dinaldoap/cookiecutter-standalone-pypackage"
+
+[project.scripts]
+cookiecutter-standalone-pypackage = "cookiecutter_standalone_pypackage.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["cookiecutter_standalone_pypackage*"]
+
+#[tool.setuptools.package-data]
+#cookiecutter_standalone_pypackage = ["*.txt"]
+
+[tool.setuptools_scm]
+write_to = "cookiecutter_standalone_pypackage/version.py"
+version_scheme = "post-release"
