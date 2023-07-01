@@ -3,9 +3,9 @@ requires = ["setuptools", "setuptools_scm[toml]"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "capgain"
+name = "{{cookiecutter.project_slug_hyphen}}"
 authors = [
-    {name = "Dinaldo Pessoa", email = "dinaldoap@gmail.com"},
+    {name = "{{cookiecutter.full_name}}", email = "{{cookiecutter.email}}"},
 ]
 description = "Calculator of capital gain and accumulated wealth for brazilian investors."
 readme = "README.md"
@@ -17,23 +17,18 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "numpy",
-    "pandas",
-    "openpyxl",
-    "lxml",
-    "typer",
 ]
 dynamic = ["version"]
 
 [project.urls]
-repository = "https://github.com/dinaldoap/capgain"
+repository = "https://github.com/dinaldoap/{{cookiecutter.project_slug_hyphen}}"
 
 [project.scripts]
-capgain = "capgain.__main__:main"
+{{cookiecutter.project_slug_hyphen}} = "{{cookiecutter.project_slug}}.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["capgain*"]
+include = ["{{cookiecutter.project_slug}}*"]
 
 [tool.setuptools_scm]
-write_to = "capgain/version.py"
+write_to = "{{cookiecutter.project_slug}}/version.py"
 version_scheme = "post-release"

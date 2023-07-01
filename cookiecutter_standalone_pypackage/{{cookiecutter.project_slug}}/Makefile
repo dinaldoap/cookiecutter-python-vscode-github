@@ -1,4 +1,4 @@
-PACKAGE_SRC=$(shell find capgain -type f -name '*.py' ! -name 'version.py')
+PACKAGE_SRC=$(shell find {{cookiecutter.project_slug}} -type f -name '*.py' ! -name 'version.py')
 TESTS_SRC=$(shell find tests -type f -name '*.py')
 TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -name '*.ini')
 
@@ -6,21 +6,21 @@ main: clean install lock sync format secure lint test package smoke
 .PHONY: main
 
 .cache/make/clean:
-	rm -rf .cache/make capgain.egg-info .pytest_cache tests/.pytest_cache dist
+	rm -rf .cache/make {{cookiecutter.project_slug_hyphen}}.egg-info .pytest_cache tests/.pytest_cache dist
 	mkdir --parents .cache/make
 	@date > $@
 .PHONY: clean
 clean: .cache/make/clean
 
-.cache/make/install: requirements-editable.txt pyproject.toml requirements-dev.txt constraints.txt
-	pip install --quiet --requirement=requirements-editable.txt --requirement=requirements-dev.txt
+.cache/make/install: requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
+	pip install --quiet --requirement=requirements-dev-editable.txt --requirement=requirements-dev.txt
 	@date > $@
 .PHONY: install
 install: .cache/make/install
 
-.cache/make/lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-bridge.txt
+.cache/make/lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-dev-constraints.txt
 	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml
-	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml requirements-bridge.txt
+	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml requirements-dev-constraints.txt
 	@date > $@
 .PHONY: lock
 lock: .cache/make/lock
@@ -29,17 +29,17 @@ lock: .cache/make/lock
 unlock:
 	rm requirements-*.lock
 
-.cache/make/sync: .cache/make/lock requirements-editable.txt pyproject.toml requirements-dev.lock
+.cache/make/sync: .cache/make/lock requirements-dev-editable.txt pyproject.toml requirements-dev.lock
 	pip-sync --quiet requirements-dev.lock
-	pip install --quiet --requirement=requirements-editable.txt
+	pip install --quiet --requirement=requirements-dev-editable.txt
 	@date > $@
 .PHONY: sync
 sync: .cache/make/sync
 
 .cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
-	isort --profile black capgain tests
-	black capgain tests
-	docformatter --in-place --recursive capgain tests
+	isort --profile black {{cookiecutter.project_slug}} tests
+	black {{cookiecutter.project_slug}} tests
+	docformatter --in-place --recursive {{cookiecutter.project_slug}} tests
 	@date > $@
 .PHONY: format
 format: .cache/make/format
@@ -48,19 +48,19 @@ format: .cache/make/format
 	pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
 	@date > $@
 .cache/make/bandit: .cache/make/sync ${PACKAGE_SRC}
-	bandit --recursive capgain
+	bandit --recursive {{cookiecutter.project_slug}}
 	@date > $@
 .PHONY: secure
 secure: .cache/make/pip-audit .cache/make/bandit
 
 .cache/make/lint: .cache/make/sync ${PACKAGE_SRC} .pylintrc
-	pylint capgain
+	pylint {{cookiecutter.project_slug}}
 	@date > $@
 .PHONY: lint
 lint: .cache/make/lint
 
 .cache/make/test: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC} ${TESTS_DATA}
-	pytest --cov=capgain --cov-report=term-missing tests
+	pytest --cov={{cookiecutter.project_slug}} --cov-report=term-missing tests
 	@date > $@
 .PHONY: test
 test: .cache/make/test
@@ -74,9 +74,9 @@ package: .cache/make/package
 
 .cache/make/smoke: .cache/make/package
 	pip install --quiet dist/*.whl
-	capgain --help
-	capgain --version
-	pip install --quiet --requirement=requirements-editable.txt
+	{{cookiecutter.project_slug_hyphen}} --help
+	{{cookiecutter.project_slug_hyphen}} --version
+	pip install --quiet --requirement=requirements-dev-editable.txt
 	@date > $@
 .PHONY: smoke
 smoke: .cache/make/smoke
@@ -95,4 +95,4 @@ devcontainer:
 
 .PHONY: testpypi
 testpypi:
-	twine upload --repository testpypi dist/capgain*.whl
+	twine upload --repository testpypi dist/{{cookiecutter.project_slug_hyphen}}*.whl

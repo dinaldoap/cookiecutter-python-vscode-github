@@ -12,15 +12,15 @@ main: clean install lock sync format secure lint test package smoke
 .PHONY: clean
 clean: .cache/make/clean
 
-.cache/make/install: requirements-editable.txt pyproject.toml requirements-dev.txt constraints.txt
-	pip install --quiet --requirement=requirements-editable.txt --requirement=requirements-dev.txt
+.cache/make/install: requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
+	pip install --quiet --requirement=requirements-dev-editable.txt --requirement=requirements-dev.txt
 	@date > $@
 .PHONY: install
 install: .cache/make/install
 
-.cache/make/lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-bridge.txt
+.cache/make/lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-dev-constraints.txt
 	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml
-	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml requirements-bridge.txt
+	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml requirements-dev-constraints.txt
 	@date > $@
 .PHONY: lock
 lock: .cache/make/lock
@@ -29,9 +29,9 @@ lock: .cache/make/lock
 unlock:
 	rm requirements-*.lock
 
-.cache/make/sync: .cache/make/lock requirements-editable.txt pyproject.toml requirements-dev.lock
+.cache/make/sync: .cache/make/lock requirements-dev-editable.txt pyproject.toml requirements-dev.lock
 	pip-sync --quiet requirements-dev.lock
-	pip install --quiet --requirement=requirements-editable.txt
+	pip install --quiet --requirement=requirements-dev-editable.txt
 	@date > $@
 .PHONY: sync
 sync: .cache/make/sync
@@ -76,7 +76,7 @@ package: .cache/make/package
 	pip install --quiet dist/*.whl
 	cookiecutter-standalone-pypackage --help
 	cookiecutter-standalone-pypackage --version
-	pip install --quiet --requirement=requirements-editable.txt
+	pip install --quiet --requirement=requirements-dev-editable.txt
 	@date > $@
 .PHONY: smoke
 smoke: .cache/make/smoke

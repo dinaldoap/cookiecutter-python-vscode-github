@@ -2,9 +2,9 @@
     "full_name": "Dinaldo Andrade Pessoa",
     "email": "dinaldoap@gmail.com",
     "github_username": "dinaldoap",
-    "project_name": "Standalone Python Package",
-    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
-    "project_slug_hyphen": "{{ cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-') }}",
-    "project_short_description": "Standalone Python Package requires only a local machine to build and upload it to PyPI.",
-    "pypi_username": "{{ cookiecutter.github_username }}"    
+    "project_name": "Cookiecutter Standalone PyPackage",
+    "project_slug": "{{cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_')}}",
+    "project_slug_hyphen": "{{cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-')}}",
+    "project_short_description": "Cookiecutter Standalone PyPackage requires only a local machine to build and upload it to PyPI.",
+    "pypi_username": "{{cookiecutter.github_username}}"    
   }

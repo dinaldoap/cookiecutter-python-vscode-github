@@ -1,5 +1,5 @@
 {
-    "name": "capgain",
+    "name": "{{cookiecutter.project_slug_hyphen}}",
     // Use docker while docker-compose doesn't support --gpus
     "dockerFile": "devcontainer.dockerfile",
     "context": "..",
@@ -8,7 +8,7 @@
     "mounts": [
         "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/user/.ssh",
         "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/user/.gitconfig",
-        "type=volume,source=capgain_vscode-server,target=/home/user/.vscode-server",
+        "type=volume,source={{cookiecutter.project_slug_hyphen}}_vscode-server,target=/home/user/.vscode-server",
         "type=volume,source=home-cache,target=/home/user/.cache"
     ],
     "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
@@ -48,18 +48,18 @@
                 "files.exclude": {
                     "**/.git": true,
                     "**/.venv": true,
-                    "**/capgain.egg-info": true,
+                    "**/{{cookiecutter.project_slug_hyphen}}.egg-info": true,
                     "**/__pycache__": true,
                     "**/.ipynb_checkpoints": true,
                     "**/activate": true,
                     "**/.coverage": true,
-                    "**/capgain.spec": true
+                    "**/{{cookiecutter.project_slug_hyphen}}.spec": true
                 },
                 // Ignore for watching
                 "files.watcherExclude": {
                     "**/.git/**": true,
                     "**/.venv/**": true,
-                    "**/capgain.egg-info/**": true,
+                    "**/{{cookiecutter.project_slug_hyphen}}.egg-info/**": true,
                     "**/__pycache__/**": true,
                     "**/.ipynb_checkpoints/**": true,
                     "**/data/**": true
