@@ -7,10 +7,10 @@ name = "{{cookiecutter.project_slug_hyphen}}"
 authors = [
     {name = "{{cookiecutter.full_name}}", email = "{{cookiecutter.email}}"},
 ]
-description = "description"
+description = "{{cookiecutter.project_short_description}}"
 readme = "README.md"
 requires-python = ">=3.8"
-keywords = ["keyword"]
+keywords = "{{cookiecutter.project_keywords}}"
 license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -21,7 +21,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-repository = "https://github.com/dinaldoap/{{cookiecutter.project_slug_hyphen}}"
+repository = "https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.project_slug_hyphen}}"
 
 [project.scripts]
 {{cookiecutter.project_slug_hyphen}} = "{{cookiecutter.project_slug}}.__main__:main"

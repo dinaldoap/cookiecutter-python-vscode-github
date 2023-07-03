@@ -95,4 +95,4 @@ devcontainer:
 
 .PHONY: testpypi
 testpypi:
-	twine upload --repository testpypi dist/{{cookiecutter.project_slug_hyphen}}*.whl
+	twine upload --repository testpypi dist/*.whl

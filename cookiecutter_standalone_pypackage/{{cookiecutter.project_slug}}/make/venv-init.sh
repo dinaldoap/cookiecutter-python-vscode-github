@@ -26,4 +26,4 @@ EOF
 source .venv/bin/activate
 
 # Config pre-commit
-pre-commit install --overwrite
+pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
