@@ -623,7 +623,6 @@ wrapt==1.15.0 \
     --hash=sha256:fd69666217b62fa5d7c6aa88e507493a34dec4fa20c5bd925e4bc12fce586639
 
 # WARNING: The following packages were not pinned, but pip requires them to be
-# pinned when the requirements file includes hashes and the requirement is not
-# satisfied by a package already installed. Consider using the --allow-unsafe flag.
+# pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
 # pip
 # setuptools
