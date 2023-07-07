@@ -1,4 +1,4 @@
-PACKAGE_SRC=$(shell find cookiecutter_standalone_pypackage -type f -name '*.py' ! -name 'version.py')
+PACKAGE_SRC=$(shell find cookiecutter_python_vscode_github -type f -name '*.py' ! -name 'version.py')
 TESTS_SRC=$(shell find tests -type f -name '*.py')
 TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -name '*.ini')
 
@@ -6,7 +6,7 @@ main: clean install lock sync format secure lint test package smoke
 .PHONY: main
 
 .cache/make/clean:
-	rm -rf .cache/make cookiecutter-standalone-pypackage.egg-info .pytest_cache tests/.pytest_cache dist
+	rm -rf .cache/make cookiecutter-python-vscode-github.egg-info .pytest_cache tests/.pytest_cache dist
 	mkdir --parents .cache/make
 	@date > $@
 .PHONY: clean
@@ -37,9 +37,9 @@ unlock:
 sync: .cache/make/sync
 
 .cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
-	isort --profile black cookiecutter_standalone_pypackage tests
-	black cookiecutter_standalone_pypackage tests
-	docformatter --in-place --recursive cookiecutter_standalone_pypackage tests
+	isort --profile black cookiecutter_python_vscode_github tests
+	black cookiecutter_python_vscode_github tests
+	docformatter --in-place --recursive cookiecutter_python_vscode_github tests
 	@date > $@
 .PHONY: format
 format: .cache/make/format
@@ -48,19 +48,19 @@ format: .cache/make/format
 	pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
 	@date > $@
 .cache/make/bandit: .cache/make/sync ${PACKAGE_SRC}
-	bandit --recursive cookiecutter_standalone_pypackage
+	bandit --recursive cookiecutter_python_vscode_github
 	@date > $@
 .PHONY: secure
 secure: .cache/make/pip-audit .cache/make/bandit
 
 .cache/make/lint: .cache/make/sync ${PACKAGE_SRC} .pylintrc
-	pylint cookiecutter_standalone_pypackage
+	pylint cookiecutter_python_vscode_github
 	@date > $@
 .PHONY: lint
 lint: .cache/make/lint
 
 .cache/make/test: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC} ${TESTS_DATA}
-	pytest --cov=cookiecutter_standalone_pypackage --cov-report=term-missing tests
+	pytest --cov=cookiecutter_python_vscode_github --cov-report=term-missing tests
 	@date > $@
 .PHONY: test
 test: .cache/make/test
@@ -74,8 +74,8 @@ package: .cache/make/package
 
 .cache/make/smoke: .cache/make/package
 	pip install --quiet dist/*.whl
-	cookiecutter-standalone-pypackage --help
-	cookiecutter-standalone-pypackage --version
+	cookiecutter-python-vscode-github --help
+	cookiecutter-python-vscode-github --version
 	pip install --quiet --requirement=requirements-dev-editable.txt
 	@date > $@
 .PHONY: smoke
