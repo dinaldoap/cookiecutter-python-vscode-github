@@ -18,6 +18,7 @@
                 "ms-python.python",
                 "VisualStudioExptTeam.vscodeintellicode",
                 "GitHub.vscode-pull-request-github",
+                "github.vscode-github-actions",
                 "eamodio.gitlens",
                 "mhutchie.git-graph",
                 "njpwerner.autodocstring"
