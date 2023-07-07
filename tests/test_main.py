@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pytest import MonkeyPatch
 
-from cookiecutter_standalone_pypackage import __main__ as main
+from cookiecutter_python_vscode_github import __main__ as main
 
 _PROJECT_ROOT = Path(__file__).parent.parent
 
@@ -17,7 +17,7 @@ def test_main():
 
 
 def test_show():
-    expected_template_path = _PROJECT_ROOT.joinpath("cookiecutter_standalone_pypackage")
+    expected_template_path = _PROJECT_ROOT.joinpath("cookiecutter_python_vscode_github")
     actual_template_path = Path(_show())
 
     assert expected_template_path == actual_template_path
@@ -29,7 +29,7 @@ def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
     sp.run(["cookiecutter", template_dir, "--no-input"], check=True)
     ignore = filecmp.DEFAULT_IGNORES + ["pyproject.toml", "__main__.py", "test_main.py"]
     diff = dircmp(
-        tmp_path.joinpath("cookiecutter_standalone_pypackage"),
+        tmp_path.joinpath("cookiecutter_python_vscode_github"),
         _PROJECT_ROOT,
         ignore=ignore,
     )
@@ -39,7 +39,7 @@ def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
 
 def _show():
     return sp.run(
-        ["cookiecutter-standalone-pypackage"],
+        ["cookiecutter-python-vscode-github"],
         check=True,
         text=True,
         capture_output=True,

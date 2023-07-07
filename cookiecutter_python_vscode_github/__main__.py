@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from cookiecutter_standalone_pypackage.version import __version__
+from cookiecutter_python_vscode_github.version import __version__
 
 
 def main(argv: list = None):
