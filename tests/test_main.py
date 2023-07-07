@@ -1,0 +1,53 @@
+import filecmp
+import subprocess as sp
+from filecmp import dircmp
+from pathlib import Path
+
+import pytest
+from pytest import MonkeyPatch
+
+from cookiecutter_standalone_pypackage import __main__ as main
+
+_PROJECT_ROOT = Path(__file__).parent.parent
+
+
+def test_main():
+    with pytest.raises(SystemExit, match="0"):
+        main.main(["--help"])
+
+
+def test_show():
+    expected_template_path = _PROJECT_ROOT.joinpath("cookiecutter_standalone_pypackage")
+    actual_template_path = Path(_show())
+
+    assert expected_template_path == actual_template_path
+
+
+def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
+    template_dir = _show()
+    monkeypatch.chdir(tmp_path)
+    sp.run(["cookiecutter", template_dir, "--no-input"], check=True)
+    ignore = filecmp.DEFAULT_IGNORES + ["pyproject.toml", "__main__.py", "test_main.py"]
+    diff = dircmp(
+        tmp_path.joinpath("cookiecutter_standalone_pypackage"),
+        _PROJECT_ROOT,
+        ignore=ignore,
+    )
+    diff_list = _list_diff_files(diff)
+    assert [] == list(diff_list)
+
+
+def _show():
+    return sp.run(
+        ["cookiecutter-standalone-pypackage"],
+        check=True,
+        text=True,
+        capture_output=True,
+    ).stdout.strip()
+
+
+def _list_diff_files(dcmp):
+    for name in dcmp.diff_files:
+        yield "diff_file %s found in %s and %s" % (name, dcmp.left, dcmp.right)
+    for sub_dcmp in dcmp.subdirs.values():
+        _list_diff_files(sub_dcmp)
