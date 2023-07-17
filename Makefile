@@ -85,9 +85,9 @@ smoke: .cache/make/smoke
 venv:
 	bash make/venv.sh
 
-.PHONY: venv-init
-venv-init:
-	bash make/venv-init.sh
+.PHONY: bash
+bash:
+	bash .devcontainer/bash.sh
 
 .PHONY: devcontainer
 devcontainer:

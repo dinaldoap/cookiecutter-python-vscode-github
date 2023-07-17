@@ -34,7 +34,9 @@ def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
         ignore=ignore,
     )
     diff_list = _list_diff_files(diff)
-    assert [] == list(diff_list)
+    assert [] == list(
+        diff_list
+    ), "Diff list is not empty. Check diff list content to fix differences between template and project."
 
 
 def _show():
@@ -50,4 +52,4 @@ def _list_diff_files(dcmp):
     for name in dcmp.diff_files:
         yield "diff_file %s found in %s and %s" % (name, dcmp.left, dcmp.right)
     for sub_dcmp in dcmp.subdirs.values():
-        _list_diff_files(sub_dcmp)
+        yield from _list_diff_files(sub_dcmp)
