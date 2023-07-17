@@ -27,7 +27,12 @@ def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
     template_dir = _show()
     monkeypatch.chdir(tmp_path)
     sp.run(["cookiecutter", template_dir, "--no-input"], check=True)
-    ignore = filecmp.DEFAULT_IGNORES + ["pyproject.toml", "__main__.py", "test_main.py"]
+    ignore = filecmp.DEFAULT_IGNORES + [
+        "pyproject.toml",
+        "requirements-dev.txt",
+        "__main__.py",
+        "test_main.py",
+    ]
     diff = dircmp(
         tmp_path.joinpath("cookiecutter_python_vscode_github"),
         _PROJECT_ROOT,
