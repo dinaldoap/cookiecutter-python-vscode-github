@@ -10,7 +10,7 @@ authors = [
 description = "{{cookiecutter.project_short_description}}"
 readme = "README.md"
 requires-python = ">=3.8"
-keywords = "{{cookiecutter.project_keywords}}"
+keywords = {{cookiecutter.project_keywords}}
 license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 4 - Beta",
