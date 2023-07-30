@@ -1,6 +1,6 @@
 name: Makefile CI
 
-on:  
+on:
   push:
     branches: [ "main" ]    
   pull_request:
