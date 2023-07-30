@@ -20,4 +20,4 @@ jobs:
         python-version: '3.x'
 
     - name: Build and test the project
-      run: make
+      run: make venv && source .venv/bin/activate && make

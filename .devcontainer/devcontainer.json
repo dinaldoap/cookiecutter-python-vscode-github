@@ -3,8 +3,8 @@
     // Use docker while docker-compose doesn't support --gpus
     "dockerFile": "devcontainer.dockerfile",
     "context": "..",
-    "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace",
-    "workspaceFolder": "/workspace",
+    "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace/cookiecutter-python-vscode-github",
+    "workspaceFolder": "/workspace/cookiecutter-python-vscode-github",
     "mounts": [
         "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/user/.ssh",
         "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/user/.gitconfig",
@@ -66,7 +66,7 @@
                     "**/data/**": true
                 },
                 // Python
-                "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
+                "python.defaultInterpreterPath": "/workspace/cookiecutter-python-vscode-github/.venv/bin/python",
                 "python.terminal.activateEnvironment": false,
                 // pytest
                 "python.testing.pytestArgs": [
