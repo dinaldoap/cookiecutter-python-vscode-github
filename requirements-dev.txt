@@ -11,3 +11,4 @@ pytest-cov
 pytest-env
 pip-tools
 pre-commit
+twine
