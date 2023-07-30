@@ -23,7 +23,7 @@
                 "mhutchie.git-graph",
                 "njpwerner.autodocstring"
                 // Extensions installed after VS Code initialization
-                // See make/venv-init.sh
+                // See .devcontainer/bash.sh
                 // "ms-python.isort"
             ],
             "settings": {

@@ -18,18 +18,18 @@ clean: .cache/make/clean
 .PHONY: install
 install: .cache/make/install
 
-.cache/make/lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-dev-constraints.txt
+requirements-dev.lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-dev-constraints.txt
 	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml
+requirements-prod.lock: requirements-dev.lock pyproject.toml requirements-dev-constraints.txt
 	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml requirements-dev-constraints.txt
-	@date > $@
 .PHONY: lock
-lock: .cache/make/lock
+lock: requirements-dev.lock requirements-prod.lock
 
 .PHONY: unlock
 unlock:
 	rm requirements-*.lock
 
-.cache/make/sync: .cache/make/lock requirements-dev-editable.txt pyproject.toml requirements-dev.lock
+.cache/make/sync: requirements-dev-editable.txt pyproject.toml requirements-dev.lock
 	pip-sync --quiet requirements-dev.lock
 	pip install --quiet --requirement=requirements-dev-editable.txt
 	@date > $@
