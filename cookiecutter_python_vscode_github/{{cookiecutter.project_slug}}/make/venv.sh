@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Create and activate virtual environment
-python -m venv --clear --prompt={{cookiecutter.project_slug_hyphen}} .venv
+python -m venv --clear --prompt={{cookiecutter.project_slug}} .venv
 source .venv/bin/activate
 # Install development dependencies
-make install
+make -B install
 # Config pre-commit
 pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
