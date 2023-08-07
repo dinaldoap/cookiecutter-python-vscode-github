@@ -5,12 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cookiecutter-python-vscode-github"
 authors = [
-    {name = "Dinaldo Pessoa", email = "dinaldoap@gmail.com"},
+    {name = "Dinaldo A. Pessoa", email = "dinaldoap@gmail.com"},
 ]
-description = "Cookiecutter for a standalone Python package, which requires only a local machine to build and upload it to PyPI."
+description = "Cookiecutter Python VSCode GitHub provides a Python Package template with an IDE (Visual Studio Code) and a CI/CD (GitHub Actions) already setup."
 readme = "README.md"
 requires-python = ">=3.8"
-keywords = ["cookiecutter", "standalone", "pypackage"]
 license = {file = "LICENSE"}
 classifiers = [
     "Development Status :: 4 - Beta",

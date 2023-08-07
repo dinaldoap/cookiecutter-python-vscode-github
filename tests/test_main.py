@@ -9,6 +9,8 @@ from pytest import MonkeyPatch
 from cookiecutter_python_vscode_github import __main__ as main
 
 _PROJECT_ROOT = Path(__file__).parent.parent
+_PROJECT_SLUG = "cookiecutter-python-vscode-github"
+_PROJECT_SLUG_UNDERSCORE = _PROJECT_SLUG.replace("-", "_")
 
 
 def test_main():
@@ -17,7 +19,7 @@ def test_main():
 
 
 def test_show():
-    expected_template_path = _PROJECT_ROOT.joinpath("cookiecutter_python_vscode_github")
+    expected_template_path = _PROJECT_ROOT.joinpath(_PROJECT_SLUG_UNDERSCORE)
     actual_template_path = Path(_show())
 
     assert expected_template_path == actual_template_path
@@ -34,7 +36,7 @@ def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
         "test_main.py",
     ]
     diff = dircmp(
-        tmp_path.joinpath("cookiecutter_python_vscode_github"),
+        tmp_path.joinpath(_PROJECT_SLUG),
         _PROJECT_ROOT,
         ignore=ignore,
     )

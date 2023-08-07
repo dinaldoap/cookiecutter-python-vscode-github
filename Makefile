@@ -12,7 +12,7 @@ main: clean install lock sync format secure lint test package smoke
 .PHONY: clean
 clean: .cache/make/clean
 
-.cache/make/install: .cache/make/clean .venv requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
+.cache/make/install: .cache/make/clean requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
 	pip install --quiet --requirement=requirements-dev-editable.txt --requirement=requirements-dev.txt
 	@date > $@
 .PHONY: install
@@ -96,3 +96,7 @@ devcontainer:
 .PHONY: testpypi
 testpypi:
 	twine upload --repository testpypi dist/*.whl
+
+.PHONY: cookie
+cookie:
+	cookiecutter --overwrite-if-exists --output-dir=.. --no-input --config-file=cookiecutter.yaml $$(cookiecutter-python-vscode-github)

@@ -1,4 +1,4 @@
-PACKAGE_SRC=$(shell find {{cookiecutter.project_slug}} -type f -name '*.py' ! -name 'version.py')
+PACKAGE_SRC=$(shell find {{cookiecutter.project_slug_underscore}} -type f -name '*.py' ! -name 'version.py')
 TESTS_SRC=$(shell find tests -type f -name '*.py')
 TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -name '*.ini')
 
@@ -6,13 +6,13 @@ main: clean install lock sync format secure lint test package smoke
 .PHONY: main
 
 .cache/make/clean:
-	rm -rf .cache/make {{cookiecutter.project_slug_hyphen}}.egg-info .pytest_cache tests/.pytest_cache dist
+	rm -rf .cache/make {{cookiecutter.project_slug}}.egg-info .pytest_cache tests/.pytest_cache dist
 	mkdir --parents .cache/make
 	@date > $@
 .PHONY: clean
 clean: .cache/make/clean
 
-.cache/make/install: .cache/make/clean .venv requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
+.cache/make/install: .cache/make/clean requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
 	pip install --quiet --requirement=requirements-dev-editable.txt --requirement=requirements-dev.txt
 	@date > $@
 .PHONY: install
@@ -37,9 +37,9 @@ unlock:
 sync: .cache/make/sync
 
 .cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
-	isort --profile black {{cookiecutter.project_slug}} tests
-	black {{cookiecutter.project_slug}} tests
-	docformatter --in-place --recursive {{cookiecutter.project_slug}} tests
+	isort --profile black {{cookiecutter.project_slug_underscore}} tests
+	black {{cookiecutter.project_slug_underscore}} tests
+	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests
 	@date > $@
 .PHONY: format
 format: .cache/make/format
@@ -48,19 +48,19 @@ format: .cache/make/format
 	pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
 	@date > $@
 .cache/make/bandit: .cache/make/sync ${PACKAGE_SRC}
-	bandit --recursive {{cookiecutter.project_slug}}
+	bandit --recursive {{cookiecutter.project_slug_underscore}}
 	@date > $@
 .PHONY: secure
 secure: .cache/make/pip-audit .cache/make/bandit
 
 .cache/make/lint: .cache/make/sync ${PACKAGE_SRC} .pylintrc
-	pylint {{cookiecutter.project_slug}}
+	pylint {{cookiecutter.project_slug_underscore}}
 	@date > $@
 .PHONY: lint
 lint: .cache/make/lint
 
 .cache/make/test: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC} ${TESTS_DATA}
-	pytest --cov={{cookiecutter.project_slug}} --cov-report=term-missing tests
+	pytest --cov={{cookiecutter.project_slug_underscore}} --cov-report=term-missing tests
 	@date > $@
 .PHONY: test
 test: .cache/make/test
@@ -74,8 +74,8 @@ package: .cache/make/package
 
 .cache/make/smoke: .cache/make/package
 	pip install --quiet dist/*.whl
-	{{cookiecutter.project_slug_hyphen}} --help
-	{{cookiecutter.project_slug_hyphen}} --version
+	{{cookiecutter.project_slug}} --help
+	{{cookiecutter.project_slug}} --version
 	pip install --quiet --requirement=requirements-dev-editable.txt
 	@date > $@
 .PHONY: smoke
@@ -96,3 +96,7 @@ devcontainer:
 .PHONY: testpypi
 testpypi:
 	twine upload --repository testpypi dist/*.whl
+
+.PHONY: cookie
+cookie:
+	cookiecutter --overwrite-if-exists --output-dir=.. --no-input --config-file=cookiecutter.yaml $$(cookiecutter-python-vscode-github)
