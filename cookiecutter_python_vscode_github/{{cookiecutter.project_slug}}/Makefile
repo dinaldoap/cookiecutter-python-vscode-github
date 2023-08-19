@@ -99,4 +99,4 @@ testpypi:
 
 .PHONY: cookie
 cookie:
-	cookiecutter --overwrite-if-exists --output-dir=.. --no-input --config-file=cookiecutter.yaml $$(cookiecutter-python-vscode-github)
+	cookie-composer create --output-dir=.. --no-input --checkout=$$(cookiecutter-python-vscode-github --version) package-composition.yaml

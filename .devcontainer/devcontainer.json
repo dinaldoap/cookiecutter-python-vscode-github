@@ -1,6 +1,5 @@
 {
     "name": "cookiecutter-python-vscode-github",
-    // Use docker while docker-compose doesn't support --gpus
     "dockerFile": "devcontainer.dockerfile",
     "context": "..",
     "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace/cookiecutter-python-vscode-github",
@@ -22,14 +21,9 @@
                 "eamodio.gitlens",
                 "mhutchie.git-graph",
                 "njpwerner.autodocstring"
-                // Extensions installed after VS Code initialization
-                // See .devcontainer/bash.sh
-                // "ms-python.isort"
             ],
             "settings": {
-                // Save
                 "files.autoSave": "afterDelay",
-                // Format
                 "editor.formatOnSave": true,
                 "editor.detectIndentation": false,
                 "editor.tabSize": 4,
@@ -45,7 +39,6 @@
                     "--profile",
                     "black"
                 ],
-                // Ignore files
                 "files.exclude": {
                     "**/.git": true,
                     "**/.venv": true,
@@ -56,7 +49,6 @@
                     "**/.coverage": true,
                     "**/cookiecutter-python-vscode-github.spec": true
                 },
-                // Ignore for watching
                 "files.watcherExclude": {
                     "**/.git/**": true,
                     "**/.venv/**": true,
@@ -65,19 +57,15 @@
                     "**/.ipynb_checkpoints/**": true,
                     "**/data/**": true
                 },
-                // Python
                 "python.defaultInterpreterPath": "/workspace/cookiecutter-python-vscode-github/.venv/bin/python",
                 "python.terminal.activateEnvironment": false,
-                // pytest
                 "python.testing.pytestArgs": [
                     "tests"
                 ],
                 "python.testing.unittestEnabled": false,
                 "python.testing.nosetestsEnabled": false,
                 "python.testing.pytestEnabled": true,
-                // Bandit
                 "python.linting.banditEnabled": true,
-                // Pylint    
                 "python.linting.pylintEnabled": true,
                 "python.linting.ignorePatterns": [
                     "**/site-packages/**/*.py",
@@ -85,7 +73,6 @@
                     "**/tests/**/*.py",
                     "**/lib/python*/**/*.py"
                 ],
-                // GitHub
                 "githubPullRequests.defaultMergeMethod": "squash"
             }
         }
