@@ -6,13 +6,12 @@ context:
   project_slug: "{{cookiecutter.project_slug}}"
   project_slug_underscore: "{{cookiecutter.project_slug_underscore}}"
   project_short_description: "{{cookiecutter.project_short_description}}"
-directory: cookiecutter-python-vscode-github
+directory: cookiecutter_python_vscode_github
 merge_strategies:
   '*.json': "comprehensive"
   '*.toml': "comprehensive"
   '*.yaml': "comprehensive"
   '*.yml': "comprehensive"
-  '*': do-not-merge
 no_input: true
 overwrite:
 - '*'
