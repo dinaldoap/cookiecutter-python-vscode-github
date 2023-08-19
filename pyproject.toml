@@ -17,6 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "cookiecutter",
+    "cookie-composer",
 ]
 dynamic = ["version"]
 
