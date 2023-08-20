@@ -100,3 +100,4 @@ testpypi:
 .PHONY: cookie
 cookie:
 	cookie-composer create --output-dir=.. --no-input --checkout=$$(cookiecutter-python-vscode-github --version) package-composition.yaml
+	prettier . --write

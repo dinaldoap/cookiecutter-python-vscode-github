@@ -8,13 +8,13 @@ context:
   project_short_description: "Cookiecutter Python VSCode GitHub provides a Python Package template with an IDE (Visual Studio Code) and a CI/CD (GitHub Actions) already setup."
 directory: cookiecutter_python_vscode_github
 merge_strategies:
-  '*.json': "comprehensive"
-  '*.toml': "comprehensive"
-  '*.yaml': "comprehensive"
-  '*.yml': "comprehensive"
+  "*.json": "comprehensive"
+  "*.toml": "comprehensive"
+  "*.yaml": "comprehensive"
+  "*.yml": "comprehensive"
 no_input: true
 overwrite:
-- '*'
+  - "*"
 overwrite_exclude:
-- '*.py'
+  - "*.py"
 template: https://github.com/dinaldoap/cookiecutter-python-vscode-github

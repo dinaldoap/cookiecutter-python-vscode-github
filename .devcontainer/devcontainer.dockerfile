@@ -13,6 +13,13 @@ RUN apt-get update -q && \
       locales && \
     rm -rf /var/lib/apt/lists/*
 
+# Install NodeJS, NPM and prettier
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+      nodejs && \
+    rm -rf /var/lib/apt/lists/* && \
+    npm install --global --save-dev --save-exact prettier
+
 RUN echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen && \
     locale-gen
 
