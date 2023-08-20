@@ -6,7 +6,7 @@ context:
   project_slug: "cookiecutter-python-vscode-github"
   project_slug_underscore: "cookiecutter_python_vscode_github"
   project_short_description: "Cookiecutter Python VSCode GitHub provides a Python Package template with an IDE (Visual Studio Code) and a CI/CD (GitHub Actions) already setup."
-directory: cookiecutter_python_vscode_github
+directory: cookiecutter
 merge_strategies:
   "*.json": "comprehensive"
   "*.toml": "comprehensive"
