@@ -18,15 +18,8 @@ def test_main():
         main.main(["--help"])
 
 
-def test_show():
-    expected_template_path = _PROJECT_ROOT.joinpath(_PROJECT_SLUG_UNDERSCORE)
-    actual_template_path = Path(_show())
-
-    assert expected_template_path == actual_template_path
-
-
 def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
-    template_dir = _show()
+    template_dir = _PROJECT_ROOT.joinpath(_PROJECT_SLUG_UNDERSCORE)
     monkeypatch.chdir(tmp_path)
     sp.run(["cookiecutter", template_dir, "--no-input"], check=True)
     ignore = filecmp.DEFAULT_IGNORES + [
