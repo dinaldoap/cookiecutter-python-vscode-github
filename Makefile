@@ -100,3 +100,7 @@ testpypi:
 .PHONY: cookie
 cookie:
 	cookie-composer update --no-input
+
+.PHONY: prettier
+prettier:
+	prettier . --write
