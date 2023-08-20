@@ -1,5 +1,5 @@
 checkout: dinaldoap/issue25
-commit: d57f017208d994c035d66dda197bd01675724081
+commit: 56cb74e3de254ddd1ccaee8b34bc3e94b445e3a9
 context:
   email: dinaldoap@gmail.com
   full_name: Dinaldo A. Pessoa
@@ -17,7 +17,7 @@ merge_strategies:
   "*.toml": comprehensive
   "*.yaml": comprehensive
   "*.yml": comprehensive
-no_input: true
+no_input: false
 overwrite:
   - "*"
 overwrite_exclude:
