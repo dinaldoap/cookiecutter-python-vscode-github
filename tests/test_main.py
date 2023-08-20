@@ -19,7 +19,8 @@ def test_main():
 
 def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
     monkeypatch.chdir(tmp_path)
-    sp.run(["cookiecutter", _PROJECT_ROOT, "--no-input"], check=True)
+    template_dir = _PROJECT_ROOT.joinpath("cookiecutter")
+    sp.run(["cookiecutter", template_dir, "--no-input"], check=True)
     ignore = filecmp.DEFAULT_IGNORES + [
         "pyproject.toml",
         "requirements-dev.txt",
