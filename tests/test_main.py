@@ -10,7 +10,6 @@ from cookiecutter_python_vscode_github import __main__ as main
 
 _PROJECT_ROOT = Path(__file__).parent.parent
 _PROJECT_SLUG = "cookiecutter-python-vscode-github"
-_PROJECT_SLUG_UNDERSCORE = _PROJECT_SLUG.replace("-", "_")
 
 
 def test_main():
@@ -19,9 +18,8 @@ def test_main():
 
 
 def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
-    template_dir = _PROJECT_ROOT.joinpath(_PROJECT_SLUG_UNDERSCORE)
     monkeypatch.chdir(tmp_path)
-    sp.run(["cookiecutter", template_dir, "--no-input"], check=True)
+    sp.run(["cookiecutter", _PROJECT_ROOT, "--no-input"], check=True)
     ignore = filecmp.DEFAULT_IGNORES + [
         "pyproject.toml",
         "requirements-dev.txt",
