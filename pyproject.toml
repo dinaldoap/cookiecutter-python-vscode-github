@@ -16,7 +16,6 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "cookiecutter",
     "cookie-composer",
 ]
 dynamic = ["version"]

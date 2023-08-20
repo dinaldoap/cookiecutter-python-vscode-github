@@ -11,7 +11,7 @@ context:
     setup.
   project_slug: cookiecutter-python-vscode-github
   project_slug_underscore: cookiecutter_python_vscode_github
-directory: cookiecutter_python_vscode_github
+directory: cookiecutter
 merge_strategies:
   "*.json": comprehensive
   "*.toml": comprehensive

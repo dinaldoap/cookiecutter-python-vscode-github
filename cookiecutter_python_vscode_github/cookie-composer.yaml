@@ -1,0 +1,12 @@
+directory: cookiecutter
+merge_strategies:
+  "*.json": "comprehensive"
+  "*.toml": "comprehensive"
+  "*.yaml": "comprehensive"
+  "*.yml": "comprehensive"
+no_input: true
+overwrite:
+  - "*"
+overwrite_exclude:
+  - "*.py"
+template: https://github.com/dinaldoap/cookiecutter-python-vscode-github

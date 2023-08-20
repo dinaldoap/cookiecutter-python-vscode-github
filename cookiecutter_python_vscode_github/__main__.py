@@ -3,6 +3,7 @@
 import argparse
 import subprocess as sp  # nosec
 import sys
+from pathlib import Path
 
 from cookiecutter_python_vscode_github.version import __version__
 
@@ -20,12 +21,13 @@ def main(argv: list = None):
     )
     parser.add_argument("--version", action="version", version=__version__)
     parser.parse_args(argv)
+    composition_path = Path(__file__).parent.joinpath("cookie-composer.yaml")
     sp.run(  # nosec
         [
             "cookie-composer",
             "create",
             f"--checkout={__version__}",
-            "https://github.com/dinaldoap/cookiecutter-python-vscode-github",
+            composition_path,
         ],
         check=True,
     )
