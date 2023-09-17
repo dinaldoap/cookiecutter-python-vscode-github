@@ -12,3 +12,4 @@ pytest-env
 pip-tools
 pre-commit
 twine
+cookiecutter-python-vscode-github
