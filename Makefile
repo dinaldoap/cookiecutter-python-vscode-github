@@ -27,7 +27,7 @@ lock: requirements-dev.lock requirements-prod.lock
 
 .PHONY: unlock
 unlock:
-	rm requirements-*.lock
+	rm -rf requirements-*.lock
 
 .cache/make/sync: requirements-dev-editable.txt pyproject.toml requirements-dev.lock
 	pip-sync --quiet requirements-dev.lock
