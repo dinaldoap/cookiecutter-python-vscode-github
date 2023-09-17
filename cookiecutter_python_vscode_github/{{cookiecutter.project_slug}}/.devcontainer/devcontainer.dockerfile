@@ -14,7 +14,7 @@ RUN apt-get update -q && \
     rm -rf /var/lib/apt/lists/*
 
 # Install NodeJS, NPM and prettier
-RUN MAJOR=$(curl https://github.com/nodejs/node/releases | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed -E 's/v([0-9]+)\.[0-9]+\.[0-9]+/\1/p' | sort -n | tail -n 1) && \
+RUN MAJOR=$(curl -i https://github.com/nodejs/node/releases/latest | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed -E 's/v([0-9]+)\.[0-9]+\.[0-9]+/\1/p' | tail -n 1) && \
     curl -fsSL https://deb.nodesource.com/setup_${MAJOR}.x | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
       nodejs && \
