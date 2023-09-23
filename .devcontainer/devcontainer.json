@@ -25,7 +25,8 @@
         "esbenp.prettier-vscode",
         "ms-python.isort",
         "ms-python.black-formatter",
-        "ms-python.pylint"
+        "ms-python.pylint",
+        "ms-python.flake8"
       ],
       "settings": {
         // Save
@@ -76,7 +77,9 @@
         "python.testing.nosetestsEnabled": false,
         "python.testing.pytestEnabled": true,
         // Bandit
-        "python.linting.banditEnabled": true,
+        "flake8.importStrategy": "fromEnvironment",
+        "flake8.args": ["--select=S", "--exclude=tests/*"],
+        "python.linting.banditEnabled": false,
         // Pylint
         "pylint.importStrategy": "fromEnvironment",
         "python.linting.pylintEnabled": false,

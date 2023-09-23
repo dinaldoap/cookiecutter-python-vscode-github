@@ -3,6 +3,7 @@
 isort
 black
 docformatter
+flake8-bandit
 bandit
 pip-audit
 pylint
