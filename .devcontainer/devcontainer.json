@@ -44,7 +44,6 @@
         "[python]": {
           "editor.defaultFormatter": "ms-python.black-formatter"
         },
-        "python.formatting.provider": "none",
         "black-formatter.importStrategy": "fromEnvironment",
         "isort.importStrategy": "fromEnvironment",
         "isort.args": ["--profile", "black"],
@@ -76,13 +75,11 @@
         "python.testing.unittestEnabled": false,
         "python.testing.nosetestsEnabled": false,
         "python.testing.pytestEnabled": true,
-        // Bandit
+        // Flake8 (used to run Bandit)
         "flake8.importStrategy": "fromEnvironment",
         "flake8.args": ["--select=S", "--exclude=tests/*"],
-        "python.linting.banditEnabled": false,
         // Pylint
         "pylint.importStrategy": "fromEnvironment",
-        "python.linting.pylintEnabled": false,
         // GitHub
         "githubPullRequests.defaultMergeMethod": "squash"
       }
