@@ -17,4 +17,5 @@ ignore=version.py
 disable=line-too-long,
         too-few-public-methods,
         invalid-name,
-        abstract-class-instantiated
+        abstract-class-instantiated,
+        too-many-arguments
