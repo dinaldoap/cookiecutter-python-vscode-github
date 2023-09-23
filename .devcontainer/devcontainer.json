@@ -24,7 +24,8 @@
         "njpwerner.autodocstring",
         "esbenp.prettier-vscode",
         "ms-python.isort",
-        "ms-python.black-formatter"
+        "ms-python.black-formatter",
+        "ms-python.pylint"
       ],
       "settings": {
         // Save
@@ -77,13 +78,8 @@
         // Bandit
         "python.linting.banditEnabled": true,
         // Pylint
-        "python.linting.pylintEnabled": true,
-        "python.linting.ignorePatterns": [
-          "**/site-packages/**/*.py",
-          ".vscode/*.py",
-          "**/tests/**/*.py",
-          "**/lib/python*/**/*.py"
-        ],
+        "pylint.importStrategy": "fromEnvironment",
+        "python.linting.pylintEnabled": false,
         // GitHub
         "githubPullRequests.defaultMergeMethod": "squash"
       }
