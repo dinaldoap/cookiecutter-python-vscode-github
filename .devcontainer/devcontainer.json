@@ -22,10 +22,8 @@
         "eamodio.gitlens",
         "mhutchie.git-graph",
         "njpwerner.autodocstring",
-        "esbenp.prettier-vscode"
-        // Extensions installed after VS Code initialization
-        // See .devcontainer/bash.sh
-        // "ms-python.isort"
+        "esbenp.prettier-vscode",
+        "ms-python.isort"
       ],
       "settings": {
         // Save
