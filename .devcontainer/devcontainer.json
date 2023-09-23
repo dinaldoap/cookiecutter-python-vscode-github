@@ -23,7 +23,8 @@
         "mhutchie.git-graph",
         "njpwerner.autodocstring",
         "esbenp.prettier-vscode",
-        "ms-python.isort"
+        "ms-python.isort",
+        "ms-python.black-formatter"
       ],
       "settings": {
         // Save
@@ -38,7 +39,11 @@
           "source.organizeImports",
           "source.fixAll"
         ],
-        "python.formatting.provider": "black",
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter"
+        },
+        "python.formatting.provider": "none",
+        "black-formatter.importStrategy": "fromEnvironment",
         "isort.importStrategy": "fromEnvironment",
         "isort.args": ["--profile", "black"],
         // Ignore files
