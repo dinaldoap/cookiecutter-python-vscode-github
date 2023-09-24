@@ -39,7 +39,7 @@ sync: .cache/make/sync
 .cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
 	isort --profile black {{cookiecutter.project_slug_underscore}} tests
 	black {{cookiecutter.project_slug_underscore}} tests
-	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests
+	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests || [ "$$?" -eq "3" ]
 	@date > $@
 .PHONY: format
 format: .cache/make/format

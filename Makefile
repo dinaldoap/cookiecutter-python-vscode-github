@@ -39,7 +39,7 @@ sync: .cache/make/sync
 .cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
 	isort --profile black cookiecutter_python_vscode_github tests
 	black cookiecutter_python_vscode_github tests
-	docformatter --in-place --recursive cookiecutter_python_vscode_github tests
+	docformatter --in-place --recursive cookiecutter_python_vscode_github tests || [ "$$?" -eq "3" ]
 	@date > $@
 .PHONY: format
 format: .cache/make/format
