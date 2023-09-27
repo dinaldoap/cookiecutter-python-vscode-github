@@ -41,6 +41,7 @@ sync: .cache/make/sync
 	isort --profile black {{cookiecutter.project_slug_underscore}} tests
 	black {{cookiecutter.project_slug_underscore}} tests
 	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests || [ "$$?" -eq "3" ]
+	-prettier . --write
 	@date > $@
 .PHONY: format
 format: .cache/make/format
@@ -101,7 +102,3 @@ testpypi:
 .PHONY: cookie
 cookie:
 	cookiecutter --overwrite-if-exists --output-dir=.. --no-input --config-file=cookiecutter.yaml $$(cookiecutter-python-vscode-github)
-
-.PHONY: prettier
-prettier:
-	prettier . --write
