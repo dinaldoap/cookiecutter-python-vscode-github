@@ -57,6 +57,6 @@ def _show():
 
 def _list_diff_files(dcmp):
     for name in dcmp.diff_files:
-        yield "diff_file %s found in %s and %s" % (name, dcmp.left, dcmp.right)
+        yield f"diff_file {name} found in {dcmp.left} and {dcmp.right}"
     for sub_dcmp in dcmp.subdirs.values():
         yield from _list_diff_files(sub_dcmp)
