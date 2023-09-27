@@ -15,9 +15,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
 ]
-dependencies = [
-]
-dynamic = ["version"]
+dynamic = ["version", "dependencies"]
 
 [project.urls]
 repository = "https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.project_slug}}"
@@ -31,3 +29,6 @@ include = ["{{cookiecutter.project_slug_underscore}}*"]
 [tool.setuptools_scm]
 write_to = "{{cookiecutter.project_slug_underscore}}/version.py"
 version_scheme = "post-release"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements-prod.txt"]}

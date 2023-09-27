@@ -30,7 +30,6 @@ def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
     monkeypatch.chdir(tmp_path)
     sp.run(["cookiecutter", template_dir, "--no-input"], check=True)
     ignore = filecmp.DEFAULT_IGNORES + [
-        "pyproject.toml",
         "requirements-dev.txt",
         "__main__.py",
         "test_main.py",

@@ -15,9 +15,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
 ]
-dependencies = [
-]
-dynamic = ["version"]
+dynamic = ["version", "dependencies"]
 
 [project.urls]
 repository = "https://github.com/dinaldoap/cookiecutter-python-vscode-github"
@@ -31,3 +29,6 @@ include = ["cookiecutter_python_vscode_github*"]
 [tool.setuptools_scm]
 write_to = "cookiecutter_python_vscode_github/version.py"
 version_scheme = "post-release"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements-prod.txt"]}
