@@ -37,7 +37,7 @@ unlock:
 sync: .cache/make/sync
 
 .cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
-	pyupgrade --py311-plus $$(find cookiecutter_python_vscode_github tests -type f -name "*.py")
+	pyupgrade --py311-plus --exit-zero-even-if-changed $$(find cookiecutter_python_vscode_github tests -type f -name "*.py")
 	isort --profile black cookiecutter_python_vscode_github tests
 	black cookiecutter_python_vscode_github tests
 	docformatter --in-place --recursive cookiecutter_python_vscode_github tests || [ "$$?" -eq "3" ]
