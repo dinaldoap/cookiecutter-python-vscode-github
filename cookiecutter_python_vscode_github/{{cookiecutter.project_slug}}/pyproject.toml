@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools_scm[toml]"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "{{cookiecutter.project_slug}}"
+name = "{{cookiecutter.project_slug_pypi}}"
 authors = [
     {name = "{{cookiecutter.full_name}}", email = "{{cookiecutter.email}}"},
 ]
@@ -21,7 +21,7 @@ dynamic = ["version", "dependencies"]
 repository = "https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.project_slug}}"
 
 [project.scripts]
-{{cookiecutter.project_slug}} = "{{cookiecutter.project_slug_underscore}}.__main__:main"
+{{cookiecutter.project_slug_entrypoint}} = "{{cookiecutter.project_slug_underscore}}.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["{{cookiecutter.project_slug_underscore}}*"]
