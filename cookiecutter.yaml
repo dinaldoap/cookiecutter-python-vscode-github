@@ -5,4 +5,6 @@ default_context:
   project_name: "Cookiecutter Python VSCode GitHub"
   project_slug: "cookiecutter-python-vscode-github"
   project_slug_underscore: "cookiecutter_python_vscode_github"
+  project_slug_pypi: "cookiecutter-python-vscode-github"
+  project_slug_entrypoint: "cookiecutter-python-vscode-github"
   project_short_description: "Cookiecutter Python VSCode GitHub provides a Python Package template with an IDE (Visual Studio Code) and a CI/CD (GitHub Actions) already setup."
