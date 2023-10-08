@@ -37,7 +37,7 @@ unlock:
 sync: .cache/make/sync
 
 .cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
-	pyupgrade --py311-plus $$(find {{cookiecutter.project_slug_underscore}} tests -type f -name "*.py")
+	pyupgrade --py311-plus --exit-zero-even-if-changed $$(find {{cookiecutter.project_slug_underscore}} tests -type f -name "*.py")
 	isort --profile black {{cookiecutter.project_slug_underscore}} tests
 	black {{cookiecutter.project_slug_underscore}} tests
 	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests || [ "$$?" -eq "3" ]
