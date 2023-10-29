@@ -1,6 +1,7 @@
+CONFIG_SRC=$(shell prettier . --list-different)
 PACKAGE_SRC=$(shell find {{cookiecutter.project_slug_underscore}} -type f -name '*.py' ! -name 'version.py')
 TESTS_SRC=$(shell find tests -type f -name '*.py')
-TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -name '*.ini')
+TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -o -name '*.ini')
 
 main: clean install lock sync format secure lint test package smoke
 .PHONY: main
@@ -36,7 +37,7 @@ unlock:
 .PHONY: sync
 sync: .cache/make/sync
 
-.cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
+.cache/make/format: .cache/make/sync ${CONFIG_SRC} ${PACKAGE_SRC} ${TESTS_SRC}
 	pyupgrade --py311-plus --exit-zero-even-if-changed $$(find {{cookiecutter.project_slug_underscore}} tests -type f -name "*.py")
 	isort --profile black {{cookiecutter.project_slug_underscore}} tests
 	black {{cookiecutter.project_slug_underscore}} tests

@@ -1,6 +1,7 @@
+CONFIG_SRC=$(shell prettier . --list-different)
 PACKAGE_SRC=$(shell find cookiecutter_python_vscode_github -type f -name '*.py' ! -name 'version.py')
 TESTS_SRC=$(shell find tests -type f -name '*.py')
-TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -name '*.ini')
+TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -o -name '*.ini')
 
 main: clean install lock sync format secure lint test package smoke
 .PHONY: main
@@ -36,7 +37,7 @@ unlock:
 .PHONY: sync
 sync: .cache/make/sync
 
-.cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
+.cache/make/format: .cache/make/sync ${CONFIG_SRC} ${PACKAGE_SRC} ${TESTS_SRC}
 	pyupgrade --py311-plus --exit-zero-even-if-changed $$(find cookiecutter_python_vscode_github tests -type f -name "*.py")
 	isort --profile black cookiecutter_python_vscode_github tests
 	black cookiecutter_python_vscode_github tests
