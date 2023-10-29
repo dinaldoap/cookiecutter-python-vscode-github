@@ -38,11 +38,11 @@ unlock:
 sync: .cache/make/sync
 
 .cache/make/format: .cache/make/sync ${CONFIG_SRC} ${PACKAGE_SRC} ${TESTS_SRC}
-	pyupgrade --py311-plus --exit-zero-even-if-changed $$(find {{cookiecutter.project_slug_underscore}} tests -type f -name "*.py")
-	isort --profile black {{cookiecutter.project_slug_underscore}} tests
-	black {{cookiecutter.project_slug_underscore}} tests
-	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests || [ "$$?" -eq "3" ]
-	-prettier . --write
+	pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
+	isort --profile black ${PACKAGE_SRC} ${TESTS_SRC}
+	black ${PACKAGE_SRC} ${TESTS_SRC}
+	docformatter --in-place ${PACKAGE_SRC} ${TESTS_SRC} || [ "$$?" -eq "3" ]
+	-prettier ${CONFIG_SRC} README.md --write
 	@date > $@
 .PHONY: format
 format: .cache/make/format
