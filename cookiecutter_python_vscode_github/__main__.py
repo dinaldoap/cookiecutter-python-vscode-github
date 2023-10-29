@@ -7,7 +7,7 @@ from pathlib import Path
 from cookiecutter_python_vscode_github.version import __version__
 
 
-def main(argv: list = None):
+def main(argv: list[str] | None = None):
     """Command-line interface's entrypoint.
 
     Args:
