@@ -33,6 +33,7 @@ def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
         "requirements-dev.txt",
         "__main__.py",
         "test_main.py",
+        "mypy.ini",
     ]
     diff = dircmp(
         tmp_path.joinpath(_PROJECT_SLUG),

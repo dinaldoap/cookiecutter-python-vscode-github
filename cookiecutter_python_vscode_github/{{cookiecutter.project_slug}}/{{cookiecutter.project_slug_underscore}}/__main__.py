@@ -2,7 +2,7 @@
 import sys
 
 
-def main(argv: list = None):
+def main(argv: list[str] | None = None):
     """Command-line interface's entrypoint.
 
     Args:

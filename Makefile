@@ -55,8 +55,9 @@ format: .cache/make/format
 .PHONY: secure
 secure: .cache/make/pip-audit .cache/make/bandit
 
-.cache/make/lint: .cache/make/sync ${PACKAGE_SRC} .pylintrc
+.cache/make/lint: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC} .pylintrc mypy.ini
 	pylint cookiecutter_python_vscode_github
+	mypy cookiecutter_python_vscode_github tests
 	@date > $@
 .PHONY: lint
 lint: .cache/make/lint
