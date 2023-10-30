@@ -1,6 +1,7 @@
+CONFIG_SRC=$(shell prettier . --list-different)
 PACKAGE_SRC=$(shell find {{cookiecutter.project_slug_underscore}} -type f -name '*.py' ! -name 'version.py')
 TESTS_SRC=$(shell find tests -type f -name '*.py')
-TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -name '*.ini')
+TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -o -name '*.ini')
 
 main: clean install lock sync format secure lint test package smoke
 .PHONY: main
@@ -36,12 +37,14 @@ unlock:
 .PHONY: sync
 sync: .cache/make/sync
 
-.cache/make/format: .cache/make/sync ${PACKAGE_SRC} ${TESTS_SRC}
-	pyupgrade --py311-plus --exit-zero-even-if-changed $$(find {{cookiecutter.project_slug_underscore}} tests -type f -name "*.py")
+# If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
+# If the variable CONFIG_SRC is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
+.cache/make/format: .cache/make/sync ${CONFIG_SRC} ${PACKAGE_SRC} ${TESTS_SRC}
+	pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
 	isort --profile black {{cookiecutter.project_slug_underscore}} tests
 	black {{cookiecutter.project_slug_underscore}} tests
 	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests || [ "$$?" -eq "3" ]
-	-prettier . --write
+	-[ -z "${CONFIG_SRC}" ] || prettier ${CONFIG_SRC} --write
 	@date > $@
 .PHONY: format
 format: .cache/make/format
