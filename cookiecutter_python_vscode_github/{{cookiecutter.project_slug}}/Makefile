@@ -38,7 +38,7 @@ unlock:
 sync: .cache/make/sync
 
 # If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
-# If the variable CONFIG_SRC is not empty, prettier is executed.
+# If the variable CONFIG_SRC is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
 .cache/make/format: .cache/make/sync ${CONFIG_SRC} ${PACKAGE_SRC} ${TESTS_SRC}
 	pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
 	isort --profile black cookiecutter_python_vscode_github tests
