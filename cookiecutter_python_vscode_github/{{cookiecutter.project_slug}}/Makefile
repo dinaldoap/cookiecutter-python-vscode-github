@@ -41,9 +41,9 @@ sync: .cache/make/sync
 # If the variable CONFIG_SRC is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
 .cache/make/format: .cache/make/sync ${CONFIG_SRC} ${PACKAGE_SRC} ${TESTS_SRC}
 	pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
-	isort --profile black cookiecutter_python_vscode_github tests
-	black cookiecutter_python_vscode_github tests
-	docformatter --in-place --recursive cookiecutter_python_vscode_github tests || [ "$$?" -eq "3" ]
+	isort --profile black {{cookiecutter.project_slug_underscore}} tests
+	black {{cookiecutter.project_slug_underscore}} tests
+	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests || [ "$$?" -eq "3" ]
 	-[ -z "${CONFIG_SRC}" ] || prettier ${CONFIG_SRC} --write
 	@date > $@
 .PHONY: format
