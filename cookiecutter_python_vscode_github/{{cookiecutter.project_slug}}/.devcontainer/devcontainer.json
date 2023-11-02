@@ -82,6 +82,8 @@
         "flake8.args": ["--select=S", "--exclude=tests/*"],
         // Pylint
         "pylint.importStrategy": "fromEnvironment",
+        // Mypy
+        "mypy-type-checker.importStrategy": "fromEnvironment",
         // GitHub
         "githubPullRequests.defaultMergeMethod": "squash"
       }
