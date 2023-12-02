@@ -14,7 +14,8 @@ main: clean install lock sync format secure lint test package smoke
 clean: .cache/make/clean
 
 .cache/make/install: .cache/make/clean requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
-	pip install --quiet --requirement=requirements-dev-editable.txt --requirement=requirements-dev.txt
+	pip install --quiet --requirement=requirements-dev.txt
+	pip install --quiet --requirement=requirements-dev-editable.txt
 	@date > $@
 .PHONY: install
 install: .cache/make/install
