@@ -10,12 +10,13 @@ RUN apt-get update -q && \
       git \
       build-essential \
       bash-completion \
-      locales && \
+      locales \
+      shellcheck && \
     rm -rf /var/lib/apt/lists/*
 
 # Install NodeJS, NPM and prettier
-RUN MAJOR=$(curl -i https://github.com/nodejs/node/releases/latest | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed -E 's/v([0-9]+)\.[0-9]+\.[0-9]+/\1/p' | tail -n 1) && \
-    curl -fsSL https://deb.nodesource.com/setup_${MAJOR}.x | bash - && \
+RUN MAJOR=$(curl -i https://deb.nodesource.com | grep -oE '[0-9]+\.x' | tail -n 1) && \
+    curl -fsSL https://deb.nodesource.com/setup_${MAJOR} | bash - && \
     DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
       nodejs && \
     rm -rf /var/lib/apt/lists/* && \
