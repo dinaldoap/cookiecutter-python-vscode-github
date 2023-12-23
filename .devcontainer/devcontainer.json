@@ -86,7 +86,7 @@
         // Mypy
         "mypy-type-checker.importStrategy": "fromEnvironment",
         // Shellcheck
-        "shellcheck.customArgs": ["--external-sources"],
+        "shellcheck.useWorkspaceRootAsCwd": true,
         // GitHub
         "githubPullRequests.defaultMergeMethod": "squash"
       }
