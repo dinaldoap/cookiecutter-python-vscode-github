@@ -1,7 +1,8 @@
 CONFIG_SRC=$(shell prettier . --list-different)
-PACKAGE_SRC=$(shell find cookiecutter_python_vscode_github -type f -name '*.py' ! -name 'version.py')
+PACKAGE_SRC=$(shell find cookiecutter_python_vscode_github -type f -name '*.py' -not -name 'version.py')
 TESTS_SRC=$(shell find tests -type f -name '*.py')
 TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -o -name '*.ini')
+SHELL_SRC=$(shell find . -type f -name '*.sh' -not -path '*/.venv/*')
 
 main: clean install lock sync format secure lint test package smoke
 .PHONY: main
@@ -62,6 +63,7 @@ secure: .cache/make/pip-audit .cache/make/bandit
 .cache/make/lint: .cache/make/format ${PACKAGE_SRC} ${TESTS_SRC} .pylintrc mypy.ini
 	pylint cookiecutter_python_vscode_github
 	mypy cookiecutter_python_vscode_github tests
+	shellcheck ${SHELL_SRC}
 	@date > $@
 .PHONY: lint
 lint: .cache/make/lint
