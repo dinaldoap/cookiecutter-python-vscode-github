@@ -7,7 +7,7 @@ SHELL_SRC=$(shell find . -type f -name '*.sh' -not -path '*/.venv/*')
 main: clean install lock sync format secure lint test package smoke
 .PHONY: main
 
-.cache/make/clean:
+.cache/make/clean: Makefile
 	rm -rf .cache/make {{cookiecutter.project_slug}}.egg-info .pytest_cache tests/.pytest_cache dist
 	mkdir --parents .cache/make
 	@date > $@
