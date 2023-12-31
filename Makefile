@@ -4,11 +4,11 @@ TESTS_SRC=$(shell find tests -type f -name '*.py')
 TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -o -name '*.ini')
 SHELL_SRC=$(shell find . -type f -name '*.sh' -not -path '*/.venv/*')
 
-## main        : Run all necessary rules to build the Python package (from "clean" to "smoke" rules). It is designed to be executed whithin a virtual environment created by "venv" rule.
+## main        : Run all necessary rules to build the Python package (from "clean" to "smoke"). It is designed to be executed whithin a virtual environment created by "venv" rule.
 main: clean install lock sync format secure lint test package smoke
 .PHONY: main
-   
-## clean       : Delete caches and files generated in the build.
+
+## clean       : Delete caches and files generated during the build.
 .cache/make/clean: Makefile
 	rm -rf .cache/make cookiecutter-python-vscode-github.egg-info .pytest_cache tests/.pytest_cache dist
 	mkdir --parents .cache/make
@@ -16,7 +16,7 @@ main: clean install lock sync format secure lint test package smoke
 .PHONY: clean
 clean: .cache/make/clean
 
-## install     : Install most recent versions of the development dependecies, which also includes the ones necessary in production.
+## install     : Install most recent versions of the development dependencies.
 .cache/make/install: .cache/make/clean requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
 	pip install --quiet --requirement=requirements-dev.txt
 	pip install --quiet --requirement=requirements-dev-editable.txt
@@ -37,7 +37,7 @@ lock: requirements-dev.lock requirements-prod.lock
 unlock:
 	rm -rf requirements-*.lock
 
-## sync        : Syncronize dependencies in requirements-dev.lock into the virtual environment.
+## sync        : Syncronize development dependencies in the environment according to requirements-dev.lock.
 .cache/make/sync: requirements-dev-editable.txt pyproject.toml requirements-dev.lock
 	pip-sync --quiet requirements-dev.lock
 	pip install --quiet --requirement=requirements-dev-editable.txt
@@ -58,7 +58,7 @@ sync: .cache/make/sync
 .PHONY: format
 format: .cache/make/format
 
-## secure      : Run vulnerability scanners on source code and dependencies.
+## secure      : Run vulnerability scanners on source code and production dependencies.
 .cache/make/pip-audit: .cache/make/sync requirements-prod.lock
 	pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
 	@date > $@
@@ -68,7 +68,7 @@ format: .cache/make/format
 .PHONY: secure
 secure: .cache/make/pip-audit .cache/make/bandit
 
-## lint        : Run static code analyser tools on source code.
+## lint        : Run static code analysers on source code.
 .cache/make/lint: .cache/make/format ${PACKAGE_SRC} ${TESTS_SRC} .pylintrc mypy.ini
 	pylint cookiecutter_python_vscode_github
 	mypy cookiecutter_python_vscode_github tests
@@ -84,7 +84,7 @@ lint: .cache/make/lint
 .PHONY: test
 test: .cache/make/test
 	
-## package     : Create wheel of the Python package.
+## package     : Create wheel.
 .cache/make/package: .cache/make/format ${PACKAGE_SRC} pyproject.toml
 	rm -rf dist/
 	python -m build
@@ -92,7 +92,7 @@ test: .cache/make/test
 .PHONY: package
 package: .cache/make/package
 
-## smoke       : Smoke test the wheel.
+## smoke       : Smoke test wheel.
 .cache/make/smoke: .cache/make/package
 	pip install --quiet dist/*.whl
 	cookiecutter-python-vscode-github --help
@@ -107,7 +107,7 @@ smoke: .cache/make/smoke
 venv:
 	bash make/venv.sh
 
-## bash        : Setup bash enviroment.
+## bash        : Setup .bashrc and .bash_aliases.
 .PHONY: bash
 bash:
 	bash .devcontainer/bash.sh
