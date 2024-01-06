@@ -1,8 +1,9 @@
-CONFIG_SRC=$(shell prettier . --list-different)
-PACKAGE_SRC=$(shell find {{cookiecutter.project_slug_underscore}} -type f -name '*.py' -not -name 'version.py')
-TESTS_SRC=$(shell find tests -type f -name '*.py')
-TESTS_DATA=$(shell find tests -type f -name '*.xlsx' -o -name '*.ini')
-SHELL_SRC=$(shell find . -type f -name '*.sh' -not -path '*/.venv/*')
+PRETTIER_DIFF=$(shell prettier . --list-different)
+PACKAGE_SRC=$(shell git ls-files '{{cookiecutter.project_slug_underscore}}/*.py')
+PACKAGE_DATA=$(shell git ls-files -z '{{cookiecutter.project_slug_underscore}}' | tr '\0' '\n' | grep --invert-match '\.py$$')
+TESTS_SRC=$(shell git ls-files 'tests/*.py')
+TESTS_DATA=$(shell git ls-files -z 'tests' | tr '\0' '\n' | grep --invert-match '\.py$$')
+SHELL_SRC=$(shell git ls-files '*.sh')
 
 ## main        : Run all necessary rules to build the Python package (from "clean" to "smoke"). It is designed to be executed whithin a virtual environment created by "venv" rule.
 main: clean install lock sync format secure lint test package smoke
@@ -47,13 +48,13 @@ sync: .cache/make/sync
 
 ## format      : Format source code.
 # If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
-# If the variable CONFIG_SRC is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
-.cache/make/format: .cache/make/sync ${CONFIG_SRC} ${PACKAGE_SRC} ${TESTS_SRC}
+# If the variable PRETTIER_DIFF is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
+.cache/make/format: .cache/make/sync ${PRETTIER_DIFF} ${PACKAGE_SRC} ${TESTS_SRC}
 	pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
 	isort --profile black {{cookiecutter.project_slug_underscore}} tests
 	black {{cookiecutter.project_slug_underscore}} tests
 	docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests || [ "$$?" -eq "3" ]
-	-[ -z "${CONFIG_SRC}" ] || prettier ${CONFIG_SRC} --write
+	-[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
 	@date > $@
 .PHONY: format
 format: .cache/make/format
@@ -69,7 +70,7 @@ format: .cache/make/format
 secure: .cache/make/pip-audit .cache/make/bandit
 
 ## lint        : Run static code analysers on source code.
-.cache/make/lint: .cache/make/format ${PACKAGE_SRC} ${TESTS_SRC} .pylintrc mypy.ini
+.cache/make/lint: .cache/make/format ${PACKAGE_SRC} ${TESTS_SRC} ${SHELL_SRC} .pylintrc mypy.ini .shellcheckrc
 	pylint {{cookiecutter.project_slug_underscore}}
 	mypy {{cookiecutter.project_slug_underscore}} tests
 	shellcheck ${SHELL_SRC}
@@ -78,14 +79,14 @@ secure: .cache/make/pip-audit .cache/make/bandit
 lint: .cache/make/lint
 
 ## test        : Run automated tests.
-.cache/make/test: .cache/make/format ${PACKAGE_SRC} ${TESTS_SRC} ${TESTS_DATA}
+.cache/make/test: .cache/make/format ${PACKAGE_SRC} ${PACKAGE_DATA} ${TESTS_SRC} ${TESTS_DATA}
 	pytest --cov={{cookiecutter.project_slug_underscore}} --cov-report=term-missing tests
 	@date > $@
 .PHONY: test
 test: .cache/make/test
 	
 ## package     : Create wheel.
-.cache/make/package: .cache/make/format ${PACKAGE_SRC} pyproject.toml
+.cache/make/package: .cache/make/format ${PACKAGE_SRC} ${PACKAGE_DATA} pyproject.toml
 	rm -rf dist/
 	python -m build
 	@date > $@
