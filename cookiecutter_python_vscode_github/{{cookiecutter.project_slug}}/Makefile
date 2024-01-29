@@ -11,16 +11,16 @@ main: clean install lock sync format secure lint test package smoke
 
 ## clean       : Delete caches and files generated during the build.
 .cache/make/clean: Makefile
-	rm -rf .cache/make {{cookiecutter.project_slug}}.egg-info .pytest_cache tests/.pytest_cache dist
+	rm -rf .cache/make {{cookiecutter.project_slug}}.egg-info .pytest_cache tests/.pytest_cache dist requirements-dev-*.txt
 	mkdir --parents .cache/make
 	@date > $@
 .PHONY: clean
 clean: .cache/make/clean
 
 ## install     : Install most recent versions of the development dependencies.
-.cache/make/install: .cache/make/clean requirements-dev-editable.txt pyproject.toml requirements-dev.txt constraints.txt
+.cache/make/install: .cache/make/clean pyproject.toml requirements-dev.txt constraints.txt
 	pip install --quiet --requirement=requirements-dev.txt
-	pip install --quiet --requirement=requirements-dev-editable.txt
+	pip install --quiet --editable=.
 	@date > $@
 .PHONY: install
 install: .cache/make/install
@@ -28,8 +28,8 @@ install: .cache/make/install
 ## lock        : Lock development and production dependencies.
 requirements-dev.lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-prod.txt
 	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml
-requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev-constraints.txt requirements-dev.lock
-	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml requirements-dev-constraints.txt
+requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev.lock
+	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml --constraint=requirements-dev.lock
 .PHONY: lock
 lock: requirements-dev.lock requirements-prod.lock
 
@@ -39,9 +39,9 @@ unlock:
 	rm -rf requirements-*.lock
 
 ## sync        : Syncronize development dependencies in the environment according to requirements-dev.lock.
-.cache/make/sync: requirements-dev-editable.txt pyproject.toml requirements-dev.lock
+.cache/make/sync: pyproject.toml requirements-dev.lock
 	pip-sync --quiet requirements-dev.lock
-	pip install --quiet --requirement=requirements-dev-editable.txt
+	pip install --quiet --editable=.
 	@date > $@
 .PHONY: sync
 sync: .cache/make/sync
@@ -98,7 +98,7 @@ package: .cache/make/package
 	pip install --quiet dist/*.whl
 	{{cookiecutter.project_slug}} --help
 	{{cookiecutter.project_slug}} --version
-	pip install --quiet --requirement=requirements-dev-editable.txt
+	pip install --quiet --editable=.
 	@date > $@
 .PHONY: smoke
 smoke: .cache/make/smoke
