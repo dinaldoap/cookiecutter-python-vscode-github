@@ -19,15 +19,15 @@ clean: .cache/make/clean
 
 ## install     : Install most recent versions of the development dependencies.
 .cache/make/install: .cache/make/clean pyproject.toml requirements-dev.txt constraints.txt
-	pip install --quiet --requirement=requirements-dev.txt
-	pip install --quiet --editable=.
+	pip install --quiet --requirement=requirements-dev.txt --constraint=constraints.txt
+	pip install --quiet --editable=. --constraint=constraints.txt
 	@date > $@
 .PHONY: install
 install: .cache/make/install
 
 ## lock        : Lock development and production dependencies.
 requirements-dev.lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-prod.txt
-	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml
+	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml --constraint=constraints.txt
 requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev.lock
 	pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml --constraint=requirements-dev.lock
 .PHONY: lock
