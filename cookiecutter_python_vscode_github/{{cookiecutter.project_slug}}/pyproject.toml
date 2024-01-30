@@ -28,7 +28,7 @@ include = ["{{cookiecutter.project_slug_underscore}}*"]
 
 [tool.setuptools_scm]
 write_to = "{{cookiecutter.project_slug_underscore}}/version.py"
-version_scheme = "post-release"
+version_scheme = "no-guess-dev"
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements-prod.txt"]}
