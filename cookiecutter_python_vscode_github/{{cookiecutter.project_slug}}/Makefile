@@ -19,8 +19,7 @@ clean: .cache/make/clean
 
 ## install     : Install most recent versions of the development dependencies.
 .cache/make/install: .cache/make/clean pyproject.toml requirements-dev.txt constraints.txt
-	pip install --quiet --requirement=requirements-dev.txt --constraint=constraints.txt
-	pip install --quiet --editable=. --constraint=constraints.txt
+	pip install --quiet --requirement=requirements-dev.txt --editable=. --constraint=constraints.txt
 	@date > $@
 .PHONY: install
 install: .cache/make/install
