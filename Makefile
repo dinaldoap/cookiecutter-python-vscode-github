@@ -1,9 +1,19 @@
 PRETTIER_DIFF=$(shell prettier . --list-different)
-PACKAGE_SRC=$(shell git ls-files 'cookiecutter_python_vscode_github/*.py')
-PACKAGE_DATA=$(shell git ls-files -z 'cookiecutter_python_vscode_github' | tr '\0' '\n' | grep --invert-match '\.py$$')
-TESTS_SRC=$(shell git ls-files 'tests/*.py')
-TESTS_DATA=$(shell git ls-files -z 'tests' | tr '\0' '\n' | grep --invert-match '\.py$$')
-SHELL_SRC=$(shell git ls-files '*.sh')
+GIT_FILES=git ls-files -z | tr '\0' '\n'
+GIT_UNTRACKED_FILES=git ls-files -z --exclude-standard --others | tr '\0' '\n'
+# If there is no deleted file, "grep --invert-match" is deactivated by the NULL string returned by "echo -e '\0'",
+#    otherwise, "grep --invert-match" uses the list of deleted files.
+GREP_NOT_DELETED=grep --invert-match "$$( ( [ -z $$(git ls-files --deleted) ] && echo -e '\0' ) || ( git ls-files -z --deleted | tr '\0' '\n' ) )"
+GREP_PACKAGE=grep '^cookiecutter_python_vscode_github/'
+GREP_TESTS=grep '^tests/'
+GREP_PYTHON=grep '\.py$$'
+GREP_NOT_PYTHON=grep --invert-match '\.py$$'
+GREP_SHELL=grep '\.sh$$'
+PACKAGE_SRC=$(shell ${GIT_FILES} | ${GREP_PACKAGE} | ${GREP_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_PACKAGE} | ${GREP_PYTHON})
+PACKAGE_DATA=$(shell ${GIT_FILES} | ${GREP_PACKAGE} | ${GREP_NOT_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_PACKAGE} | ${GREP_NOT_PYTHON})
+TESTS_SRC=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_TESTS} | ${GREP_PYTHON})
+TESTS_DATA=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON})
+SHELL_SRC=$(shell ${GIT_FILES} | ${GREP_SHELL} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_SHELL})
 
 ## main        : Run all necessary rules to build the Python package (from "clean" to "smoke"). It is designed to be executed whithin a virtual environment created by "venv" rule.
 main: clean install lock sync format secure lint test package smoke
