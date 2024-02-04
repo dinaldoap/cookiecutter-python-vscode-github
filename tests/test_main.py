@@ -9,6 +9,7 @@ from pytest import MonkeyPatch
 from cookiecutter_python_vscode_github import __main__ as main
 
 _PROJECT_ROOT = Path(__file__).parent.parent
+_VENV_BIN = _PROJECT_ROOT.joinpath(".venv/bin")
 _PROJECT_SLUG = "cookiecutter-python-vscode-github"
 _PROJECT_SLUG_UNDERSCORE = _PROJECT_SLUG.replace("-", "_")
 
@@ -28,7 +29,14 @@ def test_show():
 def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
     template_dir = _show()
     monkeypatch.chdir(tmp_path)
-    sp.run(["cookiecutter", template_dir, "--no-input"], check=True)
+    sp.run(
+        [
+            _VENV_BIN.joinpath("cookiecutter"),
+            template_dir,
+            "--no-input",
+        ],
+        check=True,
+    )
     ignore = filecmp.DEFAULT_IGNORES + [
         "requirements-dev.txt",
         "__main__.py",
@@ -48,7 +56,7 @@ def test_bake(tmp_path: Path, monkeypatch: MonkeyPatch):
 
 def _show():
     return sp.run(
-        ["cookiecutter-python-vscode-github"],
+        [_VENV_BIN.joinpath("cookiecutter-python-vscode-github")],
         check=True,
         text=True,
         capture_output=True,
