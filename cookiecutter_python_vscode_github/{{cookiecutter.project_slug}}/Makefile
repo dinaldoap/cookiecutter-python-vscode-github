@@ -16,7 +16,19 @@ TESTS_DATA=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON} | ${GREP_NO
 SHELL_SRC=$(shell ${GIT_FILES} | ${GREP_SHELL} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_SHELL})
 VENV_BIN=.venv/bin/
 
-## main        : Run all necessary rules to build the Python package (from "clean" to "smoke").
+## devcontainer: Create devcontainer.
+.PHONY: devcontainer
+devcontainer: unvenv
+	bash .devcontainer/devcontainer.sh
+
+## devenv      : Setup development environment (.bashrc, .bash_aliases and pre-commit hooks).
+.PHONY: devenv
+devenv: .cache/make/sync
+	bash .devcontainer/bash.sh
+	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
+
+## main        : Run all necessary rules to build the Python package (default).
+.DEFAULT_GOAL:=main
 main: clean venv install lock sync format secure lint test package smoke
 .PHONY: main
 
@@ -34,9 +46,9 @@ ${VENV_BIN}activate: .cache/make/clean
 .PHONY: venv
 venv: ${VENV_BIN}activate
 
-## rmvenv      : Remove virtual enviroment.
-.PHONY: rmvenv
-rmvenv:
+## unvenv      : Remove virtual enviroment.
+.PHONY: unvenv
+unvenv:
 	rm -rf .venv
 
 ## install     : Install most recent versions of the development dependencies.
@@ -123,17 +135,6 @@ package: .cache/make/package
 	@date > $@
 .PHONY: smoke
 smoke: .cache/make/smoke
-
-## devcontainer: Create devcontainer.
-.PHONY: devcontainer
-devcontainer: rmvenv
-	bash .devcontainer/devcontainer.sh
-
-## devenv      : Setup development environment (.bashrc, .bash_aliases and pre-commit hooks).
-.PHONY: devenv
-devenv: .cache/make/sync
-	bash .devcontainer/bash.sh
-	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
 .PHONY: testpypi
