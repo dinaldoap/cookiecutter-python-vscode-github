@@ -4,4 +4,5 @@ DEVCONTAINER=$(docker ps --all | grep 'vsc-cookiecutter-python-vscode-github' | 
 docker stop "${DEVCONTAINER}"
 docker rm "${DEVCONTAINER}"
 docker volume rm 'cookiecutter-python-vscode-github_vscode-server'
+docker build --file=.devcontainer/devcontainer.dockerfile .
 exit 0

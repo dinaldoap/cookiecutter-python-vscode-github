@@ -28,15 +28,15 @@ main: clean venv install lock sync format secure lint test package smoke
 .PHONY: clean
 clean: .cache/make/clean
 
-## venv        : Create virtual environemnt
+## venv        : Create virtual environemnt.
 ${VENV_BIN}activate: .cache/make/clean
 	python -m venv --prompt='{{cookiecutter.project_slug}}' .venv
 .PHONY: venv
 venv: ${VENV_BIN}activate
 
-## unvenv      : Remove virtual enviroment.
-.PHONY: unvenv
-unvenv:
+## rmvenv      : Remove virtual enviroment.
+.PHONY: rmvenv
+rmvenv:
 	rm -rf .venv
 
 ## install     : Install most recent versions of the development dependencies.
@@ -124,20 +124,16 @@ package: .cache/make/package
 .PHONY: smoke
 smoke: .cache/make/smoke
 
-## bash        : Setup .bashrc and .bash_aliases.
-.PHONY: bash
-bash:
-	bash .devcontainer/bash.sh
-
-## pre-commit  : Setup pre-commit hooks.
-.PHONY: pre-commit
-pre-commit: .cache/make/sync
-	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
-
-## devcontainer: Stop devcontainer and remove vscode-server cache.
+## devcontainer: Create devcontainer.
 .PHONY: devcontainer
-devcontainer:
+devcontainer: rmvenv
 	bash .devcontainer/devcontainer.sh
+
+## devenv      : Setup development environment (.bashrc, .bash_aliases and pre-commit hooks).
+.PHONY: devenv
+devenv: .cache/make/sync
+	bash .devcontainer/bash.sh
+	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
 .PHONY: testpypi
