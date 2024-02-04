@@ -3,7 +3,7 @@ GIT_FILES=git ls-files -z | tr '\0' '\n'
 GIT_UNTRACKED_FILES=git ls-files -z --exclude-standard --others | tr '\0' '\n'
 # If there is no deleted file, "grep --invert-match" is deactivated by the NULL string returned by "echo -e '\0'",
 #    otherwise, "grep --invert-match" uses the list of deleted files.
-GREP_NOT_DELETED=grep --invert-match "$$( ( [ -z $$(git ls-files --deleted) ] && echo -e '\0' ) || ( git ls-files -z --deleted | tr '\0' '\n' ) )"
+GREP_NOT_DELETED=grep --invert-match "$$( ( [ -z "$$(git ls-files --deleted)" ] && echo -e '\0' ) || ( git ls-files -z --deleted | tr '\0' '\n' ) )"
 GREP_PACKAGE=grep '^cookiecutter_python_vscode_github/'
 GREP_TESTS=grep '^tests/'
 GREP_PYTHON=grep '\.py$$'
@@ -16,7 +16,19 @@ TESTS_DATA=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON} | ${GREP_NO
 SHELL_SRC=$(shell ${GIT_FILES} | ${GREP_SHELL} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_SHELL})
 VENV_BIN=.venv/bin/
 
-## main        : Run all necessary rules to build the Python package (from "clean" to "smoke").
+## devcontainer: Create devcontainer.
+.PHONY: devcontainer
+devcontainer: unvenv
+	bash .devcontainer/devcontainer.sh
+
+## devenv      : Setup development environment (.bashrc, .bash_aliases and pre-commit hooks).
+.PHONY: devenv
+devenv: .cache/make/sync
+	bash .devcontainer/bash.sh
+	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
+
+## main        : Run all necessary rules to build the Python package (default).
+.DEFAULT_GOAL:=main
 main: clean venv install lock sync format secure lint test package smoke
 .PHONY: main
 
@@ -28,7 +40,7 @@ main: clean venv install lock sync format secure lint test package smoke
 .PHONY: clean
 clean: .cache/make/clean
 
-## venv        : Create virtual environemnt
+## venv        : Create virtual environemnt.
 ${VENV_BIN}activate: .cache/make/clean
 	python -m venv --prompt='cookiecutter-python-vscode-github' .venv
 .PHONY: venv
@@ -123,21 +135,6 @@ package: .cache/make/package
 	@date > $@
 .PHONY: smoke
 smoke: .cache/make/smoke
-
-## bash        : Setup .bashrc and .bash_aliases.
-.PHONY: bash
-bash:
-	bash .devcontainer/bash.sh
-
-## pre-commit  : Setup pre-commit hooks.
-.PHONY: pre-commit
-pre-commit: .cache/make/sync
-	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
-
-## devcontainer: Stop devcontainer and remove vscode-server cache.
-.PHONY: devcontainer
-devcontainer:
-	bash .devcontainer/devcontainer.sh
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
 .PHONY: testpypi
