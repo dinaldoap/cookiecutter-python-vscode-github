@@ -3,7 +3,7 @@ GIT_FILES=git ls-files -z | tr '\0' '\n'
 GIT_UNTRACKED_FILES=git ls-files -z --exclude-standard --others | tr '\0' '\n'
 # If there is no deleted file, "grep --invert-match" is deactivated by the NULL string returned by "echo -e '\0'",
 #    otherwise, "grep --invert-match" uses the list of deleted files.
-GREP_NOT_DELETED=grep --invert-match "$$( ( [ -z $$(git ls-files --deleted) ] && echo -e '\0' ) || ( git ls-files -z --deleted | tr '\0' '\n' ) )"
+GREP_NOT_DELETED=grep --invert-match "$$( ( [ -z "$$(git ls-files --deleted)" ] && echo -e '\0' ) || ( git ls-files -z --deleted | tr '\0' '\n' ) )"
 GREP_PACKAGE=grep '^cookiecutter_python_vscode_github/'
 GREP_TESTS=grep '^tests/'
 GREP_PYTHON=grep '\.py$$'
