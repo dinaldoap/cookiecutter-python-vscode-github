@@ -15,10 +15,12 @@ TESTS_SRC=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_PYTHON} | ${GREP_NOT_DEL
 TESTS_DATA=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON})
 SHELL_SRC=$(shell ${GIT_FILES} | ${GREP_SHELL} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_SHELL})
 VENV_BIN=.venv/bin/
+PYTHON=$(shell env --ignore-environment which python)
+TOUCH=@mkdir --parents .cache/make && date > $@
 
 ## devcontainer: Create devcontainer.
 .PHONY: devcontainer
-devcontainer: unvenv
+devcontainer:
 	bash .devcontainer/devcontainer.sh
 
 ## devenv      : Setup development environment (.bashrc, .bash_aliases and pre-commit hooks).
@@ -27,34 +29,25 @@ devenv: .cache/make/sync
 	bash .devcontainer/bash.sh
 	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
 
+## clean       : Delete caches and files generated during the build.
+clean:
+	rm -rf .venv .cache/make cookiecutter-python-vscode-github.egg-info .pytest_cache tests/.pytest_cache dist requirements-dev-*.txt
+
 ## main        : Run all necessary rules to build the Python package (default).
 .DEFAULT_GOAL:=main
-main: clean venv install lock sync format secure lint test package smoke
+main: venv install lock sync format secure lint test package smoke
 .PHONY: main
 
-## clean       : Delete caches and files generated during the build.
-.cache/make/clean: Makefile
-	rm -rf .cache/make cookiecutter-python-vscode-github.egg-info .pytest_cache tests/.pytest_cache dist requirements-dev-*.txt
-	mkdir --parents .cache/make
-	@date > $@
-.PHONY: clean
-clean: .cache/make/clean
-
 ## venv        : Create virtual environemnt.
-${VENV_BIN}activate: .cache/make/clean
-	python -m venv --prompt='cookiecutter-python-vscode-github' .venv
+${VENV_BIN}activate: ${PYTHON} Makefile .devcontainer/devcontainer.dockerfile
+	${PYTHON} -m venv --clear --prompt='cookiecutter-python-vscode-github' .venv
 .PHONY: venv
 venv: ${VENV_BIN}activate
-
-## unvenv      : Remove virtual enviroment.
-.PHONY: unvenv
-unvenv:
-	rm -rf .venv
 
 ## install     : Install most recent versions of the development dependencies.
 .cache/make/install: ${VENV_BIN}activate pyproject.toml requirements-dev.txt constraints.txt
 	${VENV_BIN}pip install --quiet --requirement=requirements-dev.txt --editable=. --constraint=constraints.txt
-	@date > $@
+	${TOUCH}
 .PHONY: install
 install: .cache/make/install
 
@@ -75,7 +68,7 @@ unlock:
 .cache/make/sync: pyproject.toml requirements-dev.lock
 	${VENV_BIN}pip-sync --quiet requirements-dev.lock
 	${VENV_BIN}pip install --quiet --editable=.
-	@date > $@
+	${TOUCH}
 .PHONY: sync
 sync: .cache/make/sync
 
@@ -88,17 +81,17 @@ sync: .cache/make/sync
 	${VENV_BIN}black cookiecutter_python_vscode_github tests
 	${VENV_BIN}docformatter --in-place --recursive cookiecutter_python_vscode_github tests || [ "$$?" -eq "3" ]
 	-[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
-	@date > $@
+	${TOUCH}
 .PHONY: format
 format: .cache/make/format
 
 ## secure      : Run vulnerability scanners on source code and production dependencies.
 .cache/make/pip-audit: .cache/make/sync requirements-prod.lock
 	${VENV_BIN}pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
-	@date > $@
+	${TOUCH}
 .cache/make/bandit: .cache/make/format ${PACKAGE_SRC}
 	${VENV_BIN}bandit --recursive cookiecutter_python_vscode_github
-	@date > $@
+	${TOUCH}
 .PHONY: secure
 secure: .cache/make/pip-audit .cache/make/bandit
 
@@ -107,14 +100,14 @@ secure: .cache/make/pip-audit .cache/make/bandit
 	${VENV_BIN}pylint cookiecutter_python_vscode_github
 	${VENV_BIN}mypy cookiecutter_python_vscode_github tests
 	shellcheck ${SHELL_SRC}
-	@date > $@
+	${TOUCH}
 .PHONY: lint
 lint: .cache/make/lint
 
 ## test        : Run automated tests.
 .cache/make/test: .cache/make/format ${PACKAGE_SRC} ${PACKAGE_DATA} ${TESTS_SRC} ${TESTS_DATA}
 	${VENV_BIN}pytest --cov=cookiecutter_python_vscode_github --cov-report=term-missing tests
-	@date > $@
+	${TOUCH}
 .PHONY: test
 test: .cache/make/test
 	
@@ -122,7 +115,7 @@ test: .cache/make/test
 .cache/make/package: .cache/make/format ${PACKAGE_SRC} ${PACKAGE_DATA} pyproject.toml
 	rm -rf dist/
 	${VENV_BIN}python -m build
-	@date > $@
+	${TOUCH}
 .PHONY: package
 package: .cache/make/package
 
@@ -132,7 +125,7 @@ package: .cache/make/package
 	${VENV_BIN}cookiecutter-python-vscode-github --help
 	${VENV_BIN}cookiecutter-python-vscode-github --version
 	${VENV_BIN}pip install --quiet --editable=.
-	@date > $@
+	${TOUCH}
 .PHONY: smoke
 smoke: .cache/make/smoke
 
