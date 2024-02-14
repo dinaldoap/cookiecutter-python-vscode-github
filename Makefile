@@ -23,11 +23,13 @@ TOUCH=@mkdir --parents .cache/make && date > $@
 devcontainer:
 	bash .devcontainer/devcontainer.sh
 
-## devenv      : Setup development environment (.bashrc, .bash_aliases and pre-commit hooks).
-.PHONY: devenv
-devenv: .cache/make/sync
+## env      : Setup environment (.bashrc, .bash_aliases and pre-commit hooks).
+~/.bash_aliases: .devcontainer/bash.sh
 	bash .devcontainer/bash.sh
+.git/hooks/pre-commit: .cache/make/sync .pre-commit-config.yaml
 	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
+.PHONY: env
+env: ~/.bash_aliases .git/hooks/pre-commit
 
 ## clean       : Delete caches and files generated during the build.
 clean:
@@ -46,7 +48,7 @@ venv: ${VENV_BIN}activate
 
 ## install     : Install most recent versions of the development dependencies.
 .cache/make/install: ${VENV_BIN}activate pyproject.toml requirements-dev.txt constraints.txt
-	${VENV_BIN}pip install --quiet --requirement=requirements-dev.txt --editable=. --constraint=constraints.txt
+	${VENV_BIN}pip install --quiet --disable-pip-version-check --requirement=requirements-dev.txt --editable=. --constraint=constraints.txt
 	${TOUCH}
 .PHONY: install
 install: .cache/make/install
@@ -66,8 +68,8 @@ unlock:
 
 ## sync        : Syncronize development dependencies in the environment according to requirements-dev.lock.
 .cache/make/sync: pyproject.toml requirements-dev.lock
-	${VENV_BIN}pip-sync --quiet requirements-dev.lock
-	${VENV_BIN}pip install --quiet --editable=.
+	${VENV_BIN}pip-sync --quiet --pip-args="--disable-pip-version-check" requirements-dev.lock
+	${VENV_BIN}pip install --quiet --disable-pip-version-check --editable=.
 	${TOUCH}
 .PHONY: sync
 sync: .cache/make/sync
@@ -121,10 +123,10 @@ package: .cache/make/package
 
 ## smoke       : Smoke test wheel.
 .cache/make/smoke: .cache/make/package
-	${VENV_BIN}pip install --quiet dist/*.whl
+	${VENV_BIN}pip install --quiet --disable-pip-version-check dist/*.whl
 	${VENV_BIN}cookiecutter-python-vscode-github --help
 	${VENV_BIN}cookiecutter-python-vscode-github --version
-	${VENV_BIN}pip install --quiet --editable=.
+	${VENV_BIN}pip install --quiet --disable-pip-version-check --editable=.
 	${TOUCH}
 .PHONY: smoke
 smoke: .cache/make/smoke
