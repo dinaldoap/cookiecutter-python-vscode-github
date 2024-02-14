@@ -11,7 +11,7 @@
     "type=volume,source={{cookiecutter.project_slug}}_vscode-server,target=/home/user/.vscode-server",
     "type=volume,source=home-cache,target=/home/user/.cache"
   ],
-  "postCreateCommand": "make devenv",
+  "postCreateCommand": "make env",
   "customizations": {
     "vscode": {
       "extensions": [
