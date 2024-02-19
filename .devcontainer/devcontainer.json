@@ -6,8 +6,6 @@
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace/cookiecutter-python-vscode-github",
   "workspaceFolder": "/workspace/cookiecutter-python-vscode-github",
   "mounts": [
-    "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/user/.ssh",
-    "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/user/.gitconfig",
     "type=volume,source=cookiecutter-python-vscode-github_vscode-server,target=/home/user/.vscode-server",
     "type=volume,source=home-cache,target=/home/user/.cache"
   ],
