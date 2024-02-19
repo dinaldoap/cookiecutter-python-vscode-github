@@ -82,7 +82,7 @@ sync: .cache/make/sync
 	${VENV_BIN}isort --profile black {{cookiecutter.project_slug_underscore}} tests
 	${VENV_BIN}black {{cookiecutter.project_slug_underscore}} tests
 	${VENV_BIN}docformatter --in-place --recursive {{cookiecutter.project_slug_underscore}} tests || [ "$$?" -eq "3" ]
-	-[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
+	[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
 	${TOUCH}
 .PHONY: format
 format: .cache/make/format
@@ -134,7 +134,6 @@ smoke: .cache/make/smoke
 ## check       : Check if there are pending changes in the working tree.
 .PHONY: check
 check:
-	git status
 	[ -z "$$(git status --porcelain)" ]
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
