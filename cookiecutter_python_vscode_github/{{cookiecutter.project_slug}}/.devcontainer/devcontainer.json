@@ -6,8 +6,6 @@
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace/{{cookiecutter.project_slug}}",
   "workspaceFolder": "/workspace/{{cookiecutter.project_slug}}",
   "mounts": [
-    "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/user/.ssh",
-    "type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/user/.gitconfig",
     "type=volume,source={{cookiecutter.project_slug}}_vscode-server,target=/home/user/.vscode-server",
     "type=volume,source=home-cache,target=/home/user/.cache"
   ],
