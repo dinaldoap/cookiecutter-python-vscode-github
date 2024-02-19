@@ -134,6 +134,7 @@ smoke: .cache/make/smoke
 ## check       : Check if there are pending changes in the working tree.
 .PHONY: check
 check:
+	git status
 	[ -z "$$(git status --porcelain)" ]
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
