@@ -13,10 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Build and test the project inside devcontainer
+        uses: devcontainers/ci@v0.3
         with:
-          python-version: "3.11.7"
-
-      - name: Build and test the project
-        run: make --jobs --output-sync && make check
+          runCmd: make --jobs --output-sync && make check
