@@ -10,7 +10,7 @@ repos:
         stages: [pre-commit]
       - id: make
         name: make
-        entry: bash -c "make --jobs --output-sync"
+        entry: bash -c "make --jobs --output-sync && make check"
         language: system
         always_run: true
         pass_filenames: false
