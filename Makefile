@@ -16,6 +16,7 @@ TESTS_DATA=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON} | ${GREP_NO
 SHELL_SRC=$(shell ${GIT_FILES} | ${GREP_SHELL} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_SHELL})
 VENV_BIN=.venv/bin/
 PYTHON=$(shell env --ignore-environment which python)
+PIP_TOOLS_VERSION=$(shell cat requirements-dev.lock 2>/dev/null | grep '^pip-tools==' | tr --delete 'pip\-tols\ \\')
 TOUCH=@mkdir --parents .cache/make && date > $@
 
 ## devcontainer: Create devcontainer.
@@ -26,7 +27,7 @@ devcontainer:
 ## env      : Setup environment (.bashrc, .bash_aliases and pre-commit hooks).
 ~/.bash_aliases: .devcontainer/bash.sh
 	bash .devcontainer/bash.sh
-.git/hooks/pre-commit: .cache/make/sync .pre-commit-config.yaml
+.git/hooks/pre-commit: .cache/make/install .pre-commit-config.yaml
 	${VENV_BIN}pre-commit install --overwrite --hook-type=pre-commit --hook-type=pre-push
 .PHONY: env
 env: ~/.bash_aliases .git/hooks/pre-commit
@@ -37,7 +38,7 @@ clean:
 
 ## main        : Run all necessary rules to build the Python package (default).
 .DEFAULT_GOAL:=main
-main: venv install lock sync format secure lint test package smoke
+main: venv pip-tools lock install format secure lint test package smoke
 .PHONY: main
 
 ## venv        : Create virtual environemnt.
@@ -46,15 +47,14 @@ ${VENV_BIN}activate: ${PYTHON} Makefile .devcontainer/devcontainer.dockerfile
 .PHONY: venv
 venv: ${VENV_BIN}activate
 
-## install     : Install most recent versions of the development dependencies.
-.cache/make/install: ${VENV_BIN}activate pyproject.toml requirements-dev.txt constraints.txt
-	${VENV_BIN}pip install --quiet --disable-pip-version-check --requirement=requirements-dev.txt --editable=. --constraint=constraints.txt
-	${TOUCH}
-.PHONY: install
-install: .cache/make/install
+## pip-tools   : Install pip-tools.
+${VENV_BIN}pip-compile: ${VENV_BIN}activate
+	${VENV_BIN}pip install --quiet --disable-pip-version-check pip-tools${PIP_TOOLS_VERSION}
+.PHONY: pip-tools
+pip-tools: ${VENV_BIN}pip-compile
 
 ## lock        : Lock development and production dependencies.
-requirements-dev.lock: .cache/make/install requirements-dev.txt constraints.txt pyproject.toml requirements-prod.txt
+requirements-dev.lock: ${VENV_BIN}pip-compile requirements-dev.txt constraints.txt pyproject.toml requirements-prod.txt
 	${VENV_BIN}pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml --constraint=constraints.txt
 requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev.lock
 	${VENV_BIN}pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml --constraint=requirements-dev.lock
@@ -66,18 +66,18 @@ lock: requirements-dev.lock requirements-prod.lock
 unlock:
 	rm -rf requirements-*.lock
 
-## sync        : Syncronize development dependencies in the environment according to requirements-dev.lock.
-.cache/make/sync: pyproject.toml requirements-dev.lock
+## install        : Install development dependencies according to requirements-dev.lock.
+.cache/make/install: pyproject.toml requirements-dev.lock
 	${VENV_BIN}pip-sync --quiet --pip-args="--disable-pip-version-check" requirements-dev.lock
 	${VENV_BIN}pip install --quiet --disable-pip-version-check --editable=.
 	${TOUCH}
-.PHONY: sync
-sync: .cache/make/sync
+.PHONY: install
+install: .cache/make/install
 
 ## format      : Format source code.
 # If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
 # If the variable PRETTIER_DIFF is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
-.cache/make/format: .cache/make/sync ${PRETTIER_DIFF} ${PACKAGE_SRC} ${TESTS_SRC}
+.cache/make/format: .cache/make/install ${PRETTIER_DIFF} ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}isort --profile black cookiecutter_python_vscode_github tests
 	${VENV_BIN}black cookiecutter_python_vscode_github tests
@@ -88,7 +88,7 @@ sync: .cache/make/sync
 format: .cache/make/format
 
 ## secure      : Run vulnerability scanners on source code and production dependencies.
-.cache/make/pip-audit: .cache/make/sync requirements-prod.lock
+.cache/make/pip-audit: .cache/make/install requirements-prod.lock
 	${VENV_BIN}pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
 	${TOUCH}
 .cache/make/bandit: .cache/make/format ${PACKAGE_SRC}
@@ -138,12 +138,12 @@ check:
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
 .PHONY: testpypi
-testpypi: .cache/make/sync
+testpypi: .cache/make/install
 	${VENV_BIN}twine upload --repository testpypi dist/*.whl
 
 ## cookie      : Update project using cookiecutter-python-vscode-github template.
 .PHONY: cookie
-cookie: .cache/make/sync
+cookie: .cache/make/install
 	${VENV_BIN}cookiecutter --overwrite-if-exists --output-dir=.. --no-input --config-file=cookiecutter.yaml $$(cookiecutter-python-vscode-github)
 
 ## help        : Show this help message.
