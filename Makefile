@@ -16,7 +16,7 @@ TESTS_DATA=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON} | ${GREP_NO
 SHELL_SRC=$(shell ${GIT_FILES} | ${GREP_SHELL} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_SHELL})
 VENV_BIN=.venv/bin/
 PYTHON=$(shell env --ignore-environment which python)
-PIP_TOOLS_VERSION=$(shell cat requirements-dev.lock 2>/dev/null | grep '^pip-tools==' | tr --delete 'pip\-tols\ \\')
+PIP_TOOLS_VERSION=$(shell cat requirements-dev.lock 2>/dev/null | grep '^pip-tools==' | grep --extended-regexp --only-matching '==[.0-9]+')
 TOUCH=@mkdir --parents .cache/make && date > $@
 
 ## devcontainer: Create devcontainer.
@@ -38,7 +38,7 @@ clean:
 
 ## main        : Run all necessary rules to build the Python package (default).
 .DEFAULT_GOAL:=main
-main: venv pip-tools lock install format secure lint test package smoke
+main: venv lock install format secure lint test package smoke
 .PHONY: main
 
 ## venv        : Create virtual environemnt.
@@ -47,13 +47,9 @@ ${VENV_BIN}activate: ${PYTHON} Makefile .devcontainer/devcontainer.dockerfile
 .PHONY: venv
 venv: ${VENV_BIN}activate
 
-## pip-tools   : Install pip-tools.
+## lock        : Lock development and production dependencies.
 ${VENV_BIN}pip-compile: ${VENV_BIN}activate
 	${VENV_BIN}pip install --quiet --disable-pip-version-check pip-tools${PIP_TOOLS_VERSION}
-.PHONY: pip-tools
-pip-tools: ${VENV_BIN}pip-compile
-
-## lock        : Lock development and production dependencies.
 requirements-dev.lock: ${VENV_BIN}pip-compile requirements-dev.txt constraints.txt pyproject.toml requirements-prod.txt
 	${VENV_BIN}pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml --constraint=constraints.txt
 requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev.lock
