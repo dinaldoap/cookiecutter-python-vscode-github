@@ -9,10 +9,12 @@ GREP_TESTS=grep '^tests/'
 GREP_PYTHON=grep '\.py$$'
 GREP_NOT_PYTHON=grep --invert-match '\.py$$'
 GREP_SHELL=grep '\.sh$$'
+GREP_NOT_TEMPLATE=grep --invert-match '{{cookiecutter.project_slug}}/'
 PACKAGE_SRC=$(shell ${GIT_FILES} | ${GREP_PACKAGE} | ${GREP_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_PACKAGE} | ${GREP_PYTHON})
 PACKAGE_DATA=$(shell ${GIT_FILES} | ${GREP_PACKAGE} | ${GREP_NOT_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_PACKAGE} | ${GREP_NOT_PYTHON})
 TESTS_SRC=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_TESTS} | ${GREP_PYTHON})
 TESTS_DATA=$(shell ${GIT_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_TESTS} | ${GREP_NOT_PYTHON})
+MYPY_SRC=$(shell ${GIT_FILES} | ${GREP_NOT_TEMPLATE} | ${GREP_PYTHON} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_NOT_TEMPLATE} | ${GREP_PYTHON})
 SHELL_SRC=$(shell ${GIT_FILES} | ${GREP_SHELL} | ${GREP_NOT_DELETED}) $(shell ${GIT_UNTRACKED_FILES} | ${GREP_SHELL})
 VENV_BIN=.venv/bin/
 PYTHON=$(shell env --ignore-environment which python)
@@ -73,13 +75,23 @@ install: .cache/make/install
 ## format      : Format source code.
 # If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
 # If the variable PRETTIER_DIFF is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
-.cache/make/format: .cache/make/install ${PRETTIER_DIFF} ${PACKAGE_SRC} ${TESTS_SRC}
+.cache/make/format-all: .cache/make/install .pylintrc mypy.ini
 	${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
-	${VENV_BIN}isort --profile black cookiecutter_python_vscode_github tests
-	${VENV_BIN}black cookiecutter_python_vscode_github tests
-	${VENV_BIN}docformatter --in-place --recursive cookiecutter_python_vscode_github tests || [ "$$?" -eq "3" ]
+	${VENV_BIN}isort --profile black ${PACKAGE_SRC} ${TESTS_SRC}
+	${VENV_BIN}black ${PACKAGE_SRC} ${TESTS_SRC}
+	${VENV_BIN}docformatter --in-place ${PACKAGE_SRC} ${TESTS_SRC} || [ "$$?" -eq "3" ]
 	[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
 	${TOUCH}
+.cache/make/format-change: ${PACKAGE_SRC} ${TESTS_SRC} | .cache/make/format-all
+	${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed $?
+	${VENV_BIN}isort --profile black $?
+	${VENV_BIN}black $?
+	${VENV_BIN}docformatter --in-place $? || [ "$$?" -eq "3" ]
+	${TOUCH}
+.cache/make/prettier-change: ${PRETTIER_DIFF} | .cache/make/format-all
+	[ -z "$?" ] || prettier $? --write
+	${TOUCH}
+.cache/make/format: .cache/make/format-all .cache/make/format-change .cache/make/prettier-change
 .PHONY: format
 format: .cache/make/format
 
@@ -87,18 +99,31 @@ format: .cache/make/format
 .cache/make/pip-audit: .cache/make/install requirements-prod.lock
 	${VENV_BIN}pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
 	${TOUCH}
-.cache/make/bandit: .cache/make/format ${PACKAGE_SRC}
-	${VENV_BIN}bandit --recursive cookiecutter_python_vscode_github
+.cache/make/bandit-all: .cache/make/format
+	${VENV_BIN}bandit ${PACKAGE_SRC}
+	${TOUCH}
+.cache/make/bandit-change: ${PACKAGE_SRC} | .cache/make/format
+	${VENV_BIN}bandit $?
 	${TOUCH}
 .PHONY: secure
-secure: .cache/make/pip-audit .cache/make/bandit
+secure: .cache/make/pip-audit .cache/make/bandit-all .cache/make/bandit-change
 
 ## lint        : Run static code analysers on source code.
-.cache/make/lint: .cache/make/format ${PACKAGE_SRC} ${TESTS_SRC} ${SHELL_SRC} .pylintrc mypy.ini .shellcheckrc
-	${VENV_BIN}pylint cookiecutter_python_vscode_github
-	${VENV_BIN}mypy cookiecutter_python_vscode_github tests
+.cache/make/lint-all: .cache/make/format
+	${VENV_BIN}pylint ${PACKAGE_SRC}
+	${VENV_BIN}mypy ${MYPY_SRC}
 	shellcheck ${SHELL_SRC}
 	${TOUCH}
+.cache/make/pylint-change: ${PACKAGE_SRC} | .cache/make/format
+	${VENV_BIN}pylint $?
+	${TOUCH}
+.cache/make/mypy-change: ${MYPY_SRC} | .cache/make/format
+	${VENV_BIN}mypy $?
+	${TOUCH}
+.cache/make/shellcheck-change: ${SHELL_SRC} | .cache/make/format
+	shellcheck $?
+	${TOUCH}
+.cache/make/lint: .cache/make/lint-all .cache/make/pylint-change .cache/make/mypy-change .cache/make/shellcheck-change
 .PHONY: lint
 lint: .cache/make/lint
 
@@ -134,7 +159,7 @@ check:
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
 .PHONY: testpypi
-testpypi: .cache/make/install
+testpypi: .cache/make/package
 	${VENV_BIN}twine upload --repository testpypi dist/*.whl
 
 ## cookie      : Update project using cookiecutter-python-vscode-github template.
