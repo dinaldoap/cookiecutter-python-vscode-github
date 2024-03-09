@@ -16,4 +16,4 @@ jobs:
       - name: Build and test the project inside devcontainer
         uses: devcontainers/ci@v0.3
         with:
-          runCmd: make --jobs --output-sync && make check
+          runCmd: make --quiet --jobs --output-sync && make --quiet check
