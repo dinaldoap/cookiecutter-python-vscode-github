@@ -20,7 +20,7 @@ VENV_BIN=.venv/bin/
 PYTHON=$(shell env --ignore-environment which python)
 PIP_TOOLS_VERSION=$(shell cat requirements-dev.lock 2>/dev/null | grep '^pip-tools==' | grep --extended-regexp --only-matching '==[.0-9]+')
 SKIP=[ $$(stat -c %Y $|) -gt $$(stat -c %Y $@ 2> /dev/null || echo 0) ] || 
-ECHO=echo $@
+DONE=@echo $@ done.
 TOUCH=@mkdir --parents .cache/make && date > $@
 
 ## devcontainer: Create devcontainer.
@@ -50,6 +50,7 @@ ${VENV_BIN}activate: Makefile .devcontainer/devcontainer.dockerfile
 	${PYTHON} -m venv --clear --prompt='cookiecutter-python-vscode-github' .venv
 .PHONY: venv
 venv: ${VENV_BIN}activate
+	${DONE}
 
 ## lock        : Lock development and production dependencies.
 ${VENV_BIN}pip-compile: ${VENV_BIN}activate
@@ -60,19 +61,21 @@ requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev.lo
 	${VENV_BIN}pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml --constraint=requirements-dev.lock
 .PHONY: lock
 lock: requirements-dev.lock requirements-prod.lock
+	${DONE}
 
 ## unlock      : Unlock development and production dependencies.
 .PHONY: unlock
 unlock:
 	rm -rf requirements-*.lock
 
-## install        : Install development dependencies according to requirements-dev.lock.
+## install     : Install development dependencies according to requirements-dev.lock.
 .cache/make/install: pyproject.toml requirements-dev.lock
 	${VENV_BIN}pip-sync --quiet --pip-args="--disable-pip-version-check" requirements-dev.lock
 	${VENV_BIN}pip install --quiet --disable-pip-version-check --editable=.
 	${TOUCH}
 .PHONY: install
 install: .cache/make/install
+	${DONE}
 
 ## format      : Format source code.
 # If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
@@ -80,47 +83,47 @@ install: .cache/make/install
 .cache/make/format-all: .cache/make/install
 	${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}isort --profile black ${PACKAGE_SRC} ${TESTS_SRC}
-	${VENV_BIN}black ${PACKAGE_SRC} ${TESTS_SRC}
+	${VENV_BIN}black --quiet ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}docformatter --in-place ${PACKAGE_SRC} ${TESTS_SRC} || [ "$$?" -eq "3" ]
 	[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
 	${TOUCH}
 .cache/make/format-change: ${PACKAGE_SRC} ${TESTS_SRC} | .cache/make/format-all
 	${SKIP}${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed $?
 	${SKIP}${VENV_BIN}isort --profile black $?
-	${SKIP}${VENV_BIN}black $?
+	${SKIP}${VENV_BIN}black --quiet $?
 	${SKIP}${VENV_BIN}docformatter --in-place $? || [ "$$?" -eq "3" ]
 	${TOUCH}
 .cache/make/prettier-change: ${PRETTIER_DIFF} | .cache/make/format-all
-	[ -z "$?" ] || prettier $? --write
+	${SKIP}[ -z "$?" ] || prettier $? --write
 	${TOUCH}
-.SILENT: .cache/make/format-all .cache/make/format-change .cache/make/prettier-change
 .cache/make/format: .cache/make/format-all .cache/make/format-change .cache/make/prettier-change
 	${TOUCH}
 .PHONY: format
 format: .cache/make/format
+	${DONE}
 
 ## secure      : Run vulnerability scanners on source code and production dependencies.
 .cache/make/pip-audit: .cache/make/install requirements-prod.lock
 	${VENV_BIN}pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
 	${TOUCH}
 .cache/make/bandit-all: .cache/make/install | .cache/make/format
-	${VENV_BIN}bandit ${PACKAGE_SRC}
+	${VENV_BIN}bandit --quiet ${PACKAGE_SRC}
 	${TOUCH}
 .cache/make/bandit-change: ${PACKAGE_SRC} | .cache/make/bandit-all
-	${SKIP}${VENV_BIN}bandit $?
+	${SKIP}${VENV_BIN}bandit --quiet $?
 	${TOUCH}
-.SILENT: .cache/make/bandit-all .cache/make/bandit-change
 .PHONY: secure
 secure: .cache/make/pip-audit .cache/make/bandit-all .cache/make/bandit-change
+	${DONE}
 
 ## lint        : Run static code analysers on source code.
 .cache/make/lint-all: .cache/make/install .pylintrc mypy.ini .shellcheckrc | .cache/make/format
-	${VENV_BIN}pylint ${PACKAGE_SRC}
+	${VENV_BIN}pylint --errors-only ${PACKAGE_SRC}
 	${VENV_BIN}mypy ${MYPY_SRC}
 	shellcheck ${SHELL_SRC}
 	${TOUCH}
 .cache/make/pylint-change: ${PACKAGE_SRC} | .cache/make/lint-all
-	${SKIP}${VENV_BIN}pylint $?
+	${SKIP}${VENV_BIN}pylint --errors-only $?
 	${TOUCH}
 .cache/make/mypy-change: ${MYPY_SRC} | .cache/make/lint-all
 	${SKIP}${VENV_BIN}mypy $?
@@ -128,11 +131,11 @@ secure: .cache/make/pip-audit .cache/make/bandit-all .cache/make/bandit-change
 .cache/make/shellcheck-change: ${SHELL_SRC} | .cache/make/lint-all
 	${SKIP}shellcheck $?
 	${TOUCH}
-.SILENT: .cache/make/lint-all .cache/make/pylint-change .cache/make/mypy-change .cache/make/shellcheck-change
 .cache/make/lint: .cache/make/lint-all .cache/make/pylint-change .cache/make/mypy-change .cache/make/shellcheck-change
 	${TOUCH}
 .PHONY: lint
 lint: .cache/make/lint
+	${DONE}
 
 ## test        : Run automated tests.
 .cache/make/test: .cache/make/format ${PACKAGE_SRC} ${PACKAGE_DATA} ${TESTS_SRC} ${TESTS_DATA}
@@ -140,6 +143,7 @@ lint: .cache/make/lint
 	${TOUCH}
 .PHONY: test
 test: .cache/make/test
+	${DONE}
 	
 ## package     : Create wheel.
 .cache/make/package: .cache/make/format ${PACKAGE_SRC} ${PACKAGE_DATA} pyproject.toml
@@ -148,6 +152,7 @@ test: .cache/make/test
 	${TOUCH}
 .PHONY: package
 package: .cache/make/package
+	${DONE}
 
 ## smoke       : Smoke test wheel.
 .cache/make/smoke: .cache/make/package
@@ -158,11 +163,13 @@ package: .cache/make/package
 	${TOUCH}
 .PHONY: smoke
 smoke: .cache/make/smoke
+	${DONE}
 
 ## check       : Check if there are pending changes in the working tree.
 .PHONY: check
 check:
 	[ -z "$$(git status --porcelain)" ]
+	${DONE}
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
 .PHONY: testpypi
