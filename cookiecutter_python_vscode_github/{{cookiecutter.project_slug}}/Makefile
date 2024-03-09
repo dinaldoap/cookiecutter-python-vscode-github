@@ -19,6 +19,8 @@ SHELL_SRC=$(shell ${GIT_FILES} | ${GREP_SHELL} | ${GREP_NOT_DELETED}) $(shell ${
 VENV_BIN=.venv/bin/
 PYTHON=$(shell env --ignore-environment which python)
 PIP_TOOLS_VERSION=$(shell cat requirements-dev.lock 2>/dev/null | grep '^pip-tools==' | grep --extended-regexp --only-matching '==[.0-9]+')
+SKIP=[ $$(stat -c %Y $|) -gt $$(stat -c %Y $@ 2> /dev/null || echo 0) ] || 
+ECHO=echo $@
 TOUCH=@mkdir --parents .cache/make && date > $@
 
 ## devcontainer: Create devcontainer.
@@ -44,7 +46,7 @@ main: venv lock install format secure lint test package smoke
 .PHONY: main
 
 ## venv        : Create virtual environemnt.
-${VENV_BIN}activate: ${PYTHON} Makefile .devcontainer/devcontainer.dockerfile
+${VENV_BIN}activate: Makefile .devcontainer/devcontainer.dockerfile
 	${PYTHON} -m venv --clear --prompt='cookiecutter-python-vscode-github' .venv
 .PHONY: venv
 venv: ${VENV_BIN}activate
@@ -75,7 +77,7 @@ install: .cache/make/install
 ## format      : Format source code.
 # If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
 # If the variable PRETTIER_DIFF is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
-.cache/make/format-all: .cache/make/install .pylintrc mypy.ini
+.cache/make/format-all: .cache/make/install
 	${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}isort --profile black ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}black ${PACKAGE_SRC} ${TESTS_SRC}
@@ -83,15 +85,17 @@ install: .cache/make/install
 	[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
 	${TOUCH}
 .cache/make/format-change: ${PACKAGE_SRC} ${TESTS_SRC} | .cache/make/format-all
-	${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed $?
-	${VENV_BIN}isort --profile black $?
-	${VENV_BIN}black $?
-	${VENV_BIN}docformatter --in-place $? || [ "$$?" -eq "3" ]
+	${SKIP}${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed $?
+	${SKIP}${VENV_BIN}isort --profile black $?
+	${SKIP}${VENV_BIN}black $?
+	${SKIP}${VENV_BIN}docformatter --in-place $? || [ "$$?" -eq "3" ]
 	${TOUCH}
 .cache/make/prettier-change: ${PRETTIER_DIFF} | .cache/make/format-all
 	[ -z "$?" ] || prettier $? --write
 	${TOUCH}
+.SILENT: .cache/make/format-all .cache/make/format-change .cache/make/prettier-change
 .cache/make/format: .cache/make/format-all .cache/make/format-change .cache/make/prettier-change
+	${TOUCH}
 .PHONY: format
 format: .cache/make/format
 
@@ -99,31 +103,34 @@ format: .cache/make/format
 .cache/make/pip-audit: .cache/make/install requirements-prod.lock
 	${VENV_BIN}pip-audit --cache-dir=${HOME}/.cache/pip-audit --requirement=requirements-prod.lock
 	${TOUCH}
-.cache/make/bandit-all: .cache/make/format
+.cache/make/bandit-all: .cache/make/install | .cache/make/format
 	${VENV_BIN}bandit ${PACKAGE_SRC}
 	${TOUCH}
-.cache/make/bandit-change: ${PACKAGE_SRC} | .cache/make/format
-	${VENV_BIN}bandit $?
+.cache/make/bandit-change: ${PACKAGE_SRC} | .cache/make/bandit-all
+	${SKIP}${VENV_BIN}bandit $?
 	${TOUCH}
+.SILENT: .cache/make/bandit-all .cache/make/bandit-change
 .PHONY: secure
 secure: .cache/make/pip-audit .cache/make/bandit-all .cache/make/bandit-change
 
 ## lint        : Run static code analysers on source code.
-.cache/make/lint-all: .cache/make/format
+.cache/make/lint-all: .cache/make/install .pylintrc mypy.ini .shellcheckrc | .cache/make/format
 	${VENV_BIN}pylint ${PACKAGE_SRC}
 	${VENV_BIN}mypy ${MYPY_SRC}
 	shellcheck ${SHELL_SRC}
 	${TOUCH}
-.cache/make/pylint-change: ${PACKAGE_SRC} | .cache/make/format
-	${VENV_BIN}pylint $?
+.cache/make/pylint-change: ${PACKAGE_SRC} | .cache/make/lint-all
+	${SKIP}${VENV_BIN}pylint $?
 	${TOUCH}
-.cache/make/mypy-change: ${MYPY_SRC} | .cache/make/format
-	${VENV_BIN}mypy $?
+.cache/make/mypy-change: ${MYPY_SRC} | .cache/make/lint-all
+	${SKIP}${VENV_BIN}mypy $?
 	${TOUCH}
-.cache/make/shellcheck-change: ${SHELL_SRC} | .cache/make/format
-	shellcheck $?
+.cache/make/shellcheck-change: ${SHELL_SRC} | .cache/make/lint-all
+	${SKIP}shellcheck $?
 	${TOUCH}
+.SILENT: .cache/make/lint-all .cache/make/pylint-change .cache/make/mypy-change .cache/make/shellcheck-change
 .cache/make/lint: .cache/make/lint-all .cache/make/pylint-change .cache/make/mypy-change .cache/make/shellcheck-change
+	${TOUCH}
 .PHONY: lint
 lint: .cache/make/lint
 
