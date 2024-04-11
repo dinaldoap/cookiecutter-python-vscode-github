@@ -1,9 +1,10 @@
+SHELL:=/bin/bash
 PRETTIER_DIFF=$(shell prettier . --list-different)
-GIT_FILES=git ls-files -z | tr '\0' '\n'
-GIT_UNTRACKED_FILES=git ls-files -z --exclude-standard --others | tr '\0' '\n'
-# If there is no deleted file, "grep --invert-match" is deactivated by the NULL string returned by "echo -e '\0'",
+GIT_FILES=git ls-files
+GIT_UNTRACKED_FILES=git ls-files --exclude-standard --others
+# If there is no deleted file, "grep --invert-match" is deactivated by the string returned by "echo -e '//'",
 #    otherwise, "grep --invert-match" uses the list of deleted files.
-GREP_NOT_DELETED=grep --invert-match "$$( ( [ -z "$$(git ls-files --deleted)" ] && echo -e '\0' ) || ( git ls-files -z --deleted | tr '\0' '\n' ) )"
+GREP_NOT_DELETED=grep --invert-match "$$( ( [ -z "$$(git ls-files --deleted)" ] && echo -e '//' ) || ( git ls-files --deleted ) )"
 GREP_PACKAGE=grep '^cookiecutter_python_vscode_github/'
 GREP_TESTS=grep '^tests/'
 GREP_PYTHON=grep '\.py$$'
@@ -20,6 +21,7 @@ VENV_BIN=.venv/bin/
 PYTHON=$(shell env --ignore-environment which python)
 PIP_TOOLS_VERSION=$(shell cat requirements-dev.lock 2>/dev/null | grep '^pip-tools==' | grep --extended-regexp --only-matching '==[.0-9]+')
 SKIP=[ $$(stat -c %Y $|) -gt $$(stat -c %Y $@ 2> /dev/null || echo 0) ] || 
+GIT_STATUS=git status --porcelain
 DONE=@echo $@ done.
 TOUCH=@mkdir --parents .cache/make && date > $@
 
@@ -148,7 +150,7 @@ test: .cache/make/test
 ## package     : Create wheel.
 .cache/make/package: .cache/make/format ${PACKAGE_SRC} ${PACKAGE_DATA} pyproject.toml
 	rm -rf dist/
-	${VENV_BIN}python -m build
+	${VENV_BIN}python -m build --wheel
 	${TOUCH}
 .PHONY: package
 package: .cache/make/package
@@ -168,7 +170,8 @@ smoke: .cache/make/smoke
 ## check       : Check if there are pending changes in the working tree.
 .PHONY: check
 check:
-	[ -z "$$(git status --porcelain)" ]
+	${GIT_STATUS}
+	[ -z "$$(${GIT_STATUS})" ]
 	${DONE}
 
 ## testpypi    : Upload Python package to https://test.pypi.org/.
