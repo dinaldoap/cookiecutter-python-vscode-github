@@ -49,7 +49,7 @@ main: venv lock install format secure lint test package smoke
 
 ## venv        : Create virtual environemnt.
 ${VENV_BIN}activate: Makefile .devcontainer/devcontainer.dockerfile
-	${PYTHON} -m venv --clear --prompt='cookiecutter-python-vscode-github' .venv
+	${PYTHON} -m venv --clear --prompt='{{cookiecutter.project_slug}}' .venv
 .PHONY: venv
 venv: ${VENV_BIN}activate
 	${DONE}
