@@ -120,12 +120,12 @@ secure: .cache/make/pip-audit .cache/make/bandit-all .cache/make/bandit-change
 
 ## lint        : Run static code analysers on source code.
 .cache/make/lint-all: .cache/make/install .pylintrc mypy.ini .shellcheckrc | .cache/make/format
-	${VENV_BIN}pylint --errors-only ${PACKAGE_SRC}
+	${VENV_BIN}pylint ${PACKAGE_SRC}
 	${VENV_BIN}mypy ${MYPY_SRC}
 	shellcheck ${SHELL_SRC}
 	${TOUCH}
 .cache/make/pylint-change: ${PACKAGE_SRC} | .cache/make/lint-all
-	${SKIP}${VENV_BIN}pylint --errors-only $?
+	${SKIP}${VENV_BIN}pylint $?
 	${TOUCH}
 .cache/make/mypy-change: ${MYPY_SRC} | .cache/make/lint-all
 	${SKIP}${VENV_BIN}mypy $?
