@@ -55,6 +55,7 @@ venv: ${VENV_BIN}activate
 	${DONE}
 
 ## lock        : Lock development and production dependencies.
+# Tf there is pending changes, run gha-update.
 ${VENV_BIN}uv: ${VENV_BIN}activate
 	${VENV_BIN}pip install --quiet uv${UV_VERSION}
 requirements-dev.lock: ${VENV_BIN}uv requirements-dev.txt constraints.txt pyproject.toml requirements-prod.txt
@@ -63,7 +64,7 @@ requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev.lo
 	${VENV_BIN}uv pip compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml --constraint=requirements-dev.lock
 .cache/make/lock: requirements-dev.lock
 	${VENV_BIN}uv pip install --quiet $$(cat requirements-dev.lock 2>/dev/null | grep --extended-regexp --only-matching '^gha-update==[.0-9]+')
-	${VENV_BIN}gha-update
+	[ -z "$$(${GIT_STATUS})" ] || ${VENV_BIN}gha-update
 	${TOUCH}
 .PHONY: lock
 lock: requirements-dev.lock requirements-prod.lock .cache/make/lock
