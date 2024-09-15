@@ -61,8 +61,11 @@ requirements-dev.lock: ${VENV_BIN}pip-compile requirements-dev.txt constraints.t
 	${VENV_BIN}pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml --constraint=constraints.txt
 requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev.lock
 	${VENV_BIN}pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml --constraint=requirements-dev.lock
+.cache/make/lock: requirements-dev.lock
+	${VENV_BIN}pip install --quiet --disable-pip-version-check $$(cat requirements-dev.lock 2>/dev/null | grep --extended-regexp --only-matching '^gha-update==[.0-9]+')
+	${VENV_BIN}gha-update
 .PHONY: lock
-lock: requirements-dev.lock requirements-prod.lock
+lock: requirements-dev.lock requirements-prod.lock .cache/make/lock
 	${DONE}
 
 ## unlock      : Unlock development and production dependencies.
@@ -83,14 +86,14 @@ install: .cache/make/install
 # If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
 # If the variable PRETTIER_DIFF is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
 .cache/make/format-all: .cache/make/install
-	${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
+	${VENV_BIN}pyupgrade --py312-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}isort --profile black ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}black --quiet ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}docformatter --in-place ${PACKAGE_SRC} ${TESTS_SRC} || [ "$$?" -eq "3" ]
 	[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
 	${TOUCH}
 .cache/make/format-change: ${PACKAGE_SRC} ${TESTS_SRC} | .cache/make/format-all
-	${SKIP}${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed $?
+	${SKIP}${VENV_BIN}pyupgrade --py312-plus --exit-zero-even-if-changed $?
 	${SKIP}${VENV_BIN}isort --profile black $?
 	${SKIP}${VENV_BIN}black --quiet $?
 	${SKIP}${VENV_BIN}docformatter --in-place $? || [ "$$?" -eq "3" ]
