@@ -61,8 +61,11 @@ requirements-dev.lock: ${VENV_BIN}pip-compile requirements-dev.txt constraints.t
 	${VENV_BIN}pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-dev.lock --no-header --no-annotate requirements-dev.txt pyproject.toml --constraint=constraints.txt
 requirements-prod.lock: pyproject.toml requirements-prod.txt requirements-dev.lock
 	${VENV_BIN}pip-compile --quiet --resolver=backtracking --generate-hashes --strip-extras --allow-unsafe --output-file=requirements-prod.lock --no-header --no-annotate pyproject.toml --constraint=requirements-dev.lock
+.cache/make/lock: requirements-dev.lock
+	${VENV_BIN}pip install --quiet --disable-pip-version-check $$(cat requirements-dev.lock 2>/dev/null | grep --extended-regexp --only-matching '^gha-update==[.0-9]+')
+	${VENV_BIN}gha-update
 .PHONY: lock
-lock: requirements-dev.lock requirements-prod.lock
+lock: requirements-dev.lock requirements-prod.lock .cache/make/lock
 	${DONE}
 
 ## unlock      : Unlock development and production dependencies.
