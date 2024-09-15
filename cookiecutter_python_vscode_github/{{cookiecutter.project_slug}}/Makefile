@@ -83,14 +83,14 @@ install: .cache/make/install
 # If docformatter fails, the script ignores exit status 3, because that code is returned when docformatter changes any file.
 # If the variable PRETTIER_DIFF is not empty, prettier is executed. Ignore errors because prettier is not available in GitHub Actions.
 .cache/make/format-all: .cache/make/install
-	${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
+	${VENV_BIN}pyupgrade --py312-plus --exit-zero-even-if-changed ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}isort --profile black ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}black --quiet ${PACKAGE_SRC} ${TESTS_SRC}
 	${VENV_BIN}docformatter --in-place ${PACKAGE_SRC} ${TESTS_SRC} || [ "$$?" -eq "3" ]
 	[ -z "${PRETTIER_DIFF}" ] || prettier ${PRETTIER_DIFF} --write
 	${TOUCH}
 .cache/make/format-change: ${PACKAGE_SRC} ${TESTS_SRC} | .cache/make/format-all
-	${SKIP}${VENV_BIN}pyupgrade --py311-plus --exit-zero-even-if-changed $?
+	${SKIP}${VENV_BIN}pyupgrade --py312-plus --exit-zero-even-if-changed $?
 	${SKIP}${VENV_BIN}isort --profile black $?
 	${SKIP}${VENV_BIN}black --quiet $?
 	${SKIP}${VENV_BIN}docformatter --in-place $? || [ "$$?" -eq "3" ]
